@@ -1,0 +1,3974 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="color-scheme" content="light">
+<title>HerStride</title>
+<style>
+  :root { color-scheme: light; }
+  @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,500;1,400&family=DM+Sans:wght@300;400;500&display=swap');
+
+  :root {
+    --cream:       #faf6f0;
+    --cream-dark:  #f2ebe0;
+    --rose:        #d4907a;
+    --rose-light:  #ebb8a8;
+    --rose-muted:  #f5e0d8;
+    --sage:        #8aac8e;
+    --sage-light:  #c8dbc9;
+    --sage-muted:  #e8f0e8;
+    --lavender:    #a99cc0;
+    --lav-muted:   #e8e3f0;
+    --text:        #3d3530;
+    --text-mid:    #7a6d66;
+    --text-soft:   #b0a59e;
+    --white:       #ffffff;
+    --shadow:      0 2px 16px rgba(61,53,48,0.08);
+    --shadow-sm:   0 1px 6px rgba(61,53,48,0.06);
+    --radius:      16px;
+    --radius-sm:   10px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--cream);
+    color: var(--text);
+    min-height: 100vh;
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+  }
+
+  /* NAV */
+  .top-nav {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--cream);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 14px 20px 0;
+  }
+  .app-wordmark {
+    font-family: 'Playfair Display', serif;
+    font-size: 22px; color: var(--rose);
+    letter-spacing: 0.5px; margin-bottom: 12px;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .app-wordmark span { font-style: italic; color: var(--text-mid); font-size: 13px; font-family: 'DM Sans', sans-serif; }
+  .tabs { display: flex; }
+  .tab-btn {
+    flex: 1; background: none; border: none;
+    font-family: 'DM Sans', sans-serif; font-size: 12px; font-weight: 500;
+    letter-spacing: 0.5px; color: var(--text-soft);
+    padding: 8px 4px 10px; cursor: pointer;
+    border-bottom: 2px solid transparent;
+    text-transform: uppercase; transition: color 0.2s, border-color 0.2s;
+  }
+  .tab-btn.active { color: var(--rose); border-bottom-color: var(--rose); }
+
+  /* CONTENT */
+  .content { padding: 20px 16px 20px; }
+  .tab-panel { display: none; }
+  .tab-panel.active { display: block; }
+
+  /* CARDS */
+  .card {
+    background: var(--white); border-radius: var(--radius);
+    padding: 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+  }
+  .card-title {
+    font-family: 'Playfair Display', serif; font-size: 15px;
+    color: var(--text); margin-bottom: 12px;
+    display: flex; align-items: center; gap: 7px;
+  }
+  .card-title .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--rose); flex-shrink: 0; }
+  .card-title .dot.sage { background: var(--sage); }
+  .card-title .dot.lav  { background: var(--lavender); }
+
+  /* DATE HEADER */
+  .date-hero { text-align: center; margin-bottom: 20px; }
+  .date-hero .date-day { font-family: 'Playfair Display', serif; font-size: 34px; color: var(--text); line-height: 1; }
+  .date-hero .date-full { font-size: 13px; color: var(--text-soft); margin-top: 3px; }
+  .date-hero .phase-pill {
+    display: inline-block; background: var(--sage-muted); color: var(--sage);
+    font-size: 11px; font-weight: 500; letter-spacing: 0.5px; text-transform: uppercase;
+    padding: 4px 12px; border-radius: 20px; margin-top: 8px;
+  }
+
+  /* WORKOUT CARD */
+  .workout-card {
+    background: linear-gradient(135deg, var(--rose-muted) 0%, var(--lav-muted) 100%);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
+    position: relative; overflow: hidden;
+  }
+  .workout-card::before {
+    content: ''; position: absolute; top: -20px; right: -20px;
+    width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.25);
+  }
+  .workout-card .wc-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--rose); font-weight: 500; margin-bottom: 6px; }
+  .workout-card .wc-title { font-family: 'Playfair Display', serif; font-size: 19px; color: var(--text); margin-bottom: 4px; }
+  .workout-card .wc-detail { font-size: 13px; color: var(--text-mid); }
+
+  /* GUIDANCE BANNER */
+  .guidance-banner {
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    font-size: 13px; line-height: 1.5; margin-bottom: 14px;
+  }
+  .guidance-banner.green  { background: var(--sage-muted); color: var(--sage); }
+  .guidance-banner.yellow { background: #fef9e7; color: #a0832a; border: 1px solid #f5d97a; }
+  .guidance-banner.red    { background: var(--rose-muted); color: var(--rose); }
+
+  /* STATUS BUTTONS */
+  .status-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 14px; }
+  .status-btn {
+    background: var(--white); border: 1.5px solid var(--cream-dark);
+    border-radius: var(--radius-sm); padding: 12px 8px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    color: var(--text-mid); cursor: pointer;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    transition: all 0.15s; box-shadow: var(--shadow-sm);
+  }
+  .status-btn .sb-icon { font-size: 20px; }
+  .status-btn.selected-done     { border-color: var(--sage);     background: var(--sage-muted);   color: var(--sage); }
+  .status-btn.selected-modified { border-color: var(--lavender); background: var(--lav-muted);    color: var(--lavender); }
+  .status-btn.selected-skipped  { border-color: var(--rose);     background: var(--rose-muted);   color: var(--rose); }
+  .status-btn.selected-rest     { border-color: var(--rose-light); background: var(--rose-muted); color: var(--rose); }
+
+  /* INPUTS */
+  .field-group { margin-bottom: 14px; }
+  .field-label { font-size: 12px; font-weight: 500; color: var(--text-mid); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; display: block; }
+  .field-sub { font-size: 12px; color: var(--text-soft); margin-bottom: 10px; font-style: italic; }
+  input[type="text"], input[type="number"], textarea, select {
+    width: 100%; background: var(--cream); border: 1.5px solid var(--cream-dark);
+    border-radius: var(--radius-sm); padding: 11px 13px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; color: var(--text);
+    outline: none; transition: border-color 0.2s;
+  }
+  input:focus, textarea:focus, select:focus { border-color: var(--rose-light); }
+  textarea { resize: vertical; min-height: 72px; }
+
+  /* SCALE SLIDER */
+  .scale-row { display: flex; align-items: center; gap: 10px; }
+  .scale-row input[type="range"] {
+    flex: 1; -webkit-appearance: none; background: var(--cream-dark);
+    border: none; height: 6px; border-radius: 3px; padding: 0;
+  }
+  .scale-row input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none; width: 20px; height: 20px; border-radius: 50%;
+    background: var(--rose); cursor: pointer; border: 2px solid var(--white);
+    box-shadow: 0 1px 4px rgba(0,0,0,0.15);
+  }
+  .scale-val { min-width: 28px; text-align: center; font-weight: 500; font-size: 15px; color: var(--rose); }
+  .scale-labels { display: flex; justify-content: space-between; font-size: 10px; color: var(--text-soft); margin-top: 3px; }
+
+  /* PILLS */
+  .pill-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .pill-opt {
+    background: var(--cream); border: 1.5px solid var(--cream-dark);
+    border-radius: 20px; padding: 7px 14px; font-size: 13px; color: var(--text-mid);
+    cursor: pointer; transition: all 0.15s; font-family: 'DM Sans', sans-serif;
+  }
+  .pill-opt.selected { background: var(--sage-muted); border-color: var(--sage); color: var(--sage); }
+
+  /* CHECKBOX ROW */
+  .check-row {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--cream-dark); cursor: pointer;
+  }
+  .check-row:last-child { border-bottom: none; }
+  .check-box {
+    width: 22px; height: 22px; border: 1.5px solid var(--cream-dark);
+    border-radius: 6px; background: var(--cream);
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0; font-size: 13px; transition: all 0.15s;
+  }
+  .check-box.checked { background: var(--sage-muted); border-color: var(--sage); }
+  .check-label { font-size: 14px; color: var(--text-mid); flex: 1; }
+  .check-cue { font-size: 11px; color: var(--text-soft); font-style: italic; }
+
+  /* STRENGTH EXERCISE ROW */
+  .ex-row {
+    display: flex; align-items: flex-start; gap: 10px;
+    padding: 10px 0; border-bottom: 1px solid var(--cream-dark);
+  }
+  .ex-row:last-child { border-bottom: none; }
+  .ex-info { flex: 1; }
+  .ex-name { font-size: 14px; color: var(--text); font-weight: 500; margin-bottom: 2px; }
+  .ex-note-input {
+    margin-top: 6px; padding: 6px 10px; font-size: 12px;
+    border-radius: var(--radius-sm); background: var(--cream);
+    border: 1.5px solid var(--cream-dark); width: 100%;
+    font-family: 'DM Sans', sans-serif; color: var(--text);
+    outline: none;
+  }
+
+  /* SAVE BUTTON */
+  .save-btn {
+    width: 100%; background: var(--rose); border: none;
+    border-radius: var(--radius); padding: 16px;
+    font-family: 'Playfair Display', serif; font-size: 17px;
+    color: var(--white); cursor: pointer; letter-spacing: 0.5px;
+    box-shadow: 0 4px 16px rgba(212,144,122,0.35);
+    transition: opacity 0.2s, transform 0.1s; margin-top: 6px;
+  }
+  .save-btn:active { opacity: 0.9; transform: scale(0.99); }
+
+  /* ENCOURAGEMENT */
+  .encourage {
+    text-align: center; font-size: 13px; color: var(--text-soft);
+    font-style: italic; padding: 14px 0 18px;
+  }
+
+  /* Today's Win card — extra breathing room above */
+  #todays-win-card { margin-top: 4px; margin-bottom: 20px; }
+
+  /* PLAN TAB */
+  .phase-badge {
+    background: linear-gradient(135deg, var(--rose-muted), var(--sage-muted));
+    border-radius: var(--radius); padding: 18px; margin-bottom: 14px; text-align: center;
+  }
+  .phase-badge h2 { font-family: 'Playfair Display', serif; font-size: 20px; color: var(--text); margin-bottom: 4px; }
+  .phase-badge p { font-size: 13px; color: var(--text-mid); }
+
+  .week-selector {
+    display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
+    margin-bottom: 16px; scrollbar-width: none;
+  }
+  .week-selector::-webkit-scrollbar { display: none; }
+  .week-btn {
+    flex-shrink: 0; background: var(--white); border: 1.5px solid var(--cream-dark);
+    border-radius: 20px; padding: 7px 14px; font-size: 13px; font-weight: 500;
+    color: var(--text-mid); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s;
+  }
+  .week-btn.active { background: var(--rose-muted); border-color: var(--rose); color: var(--rose); }
+
+  .week-title {
+    font-family: 'Playfair Display', serif; font-size: 15px; color: var(--text);
+    margin: 16px 0 10px; display: flex; align-items: center; gap: 8px;
+  }
+  .week-title::after { content: ''; flex: 1; height: 1px; background: var(--cream-dark); }
+
+  .day-row {
+    display: flex; gap: 10px; align-items: flex-start;
+    padding: 10px 0; border-bottom: 1px solid var(--cream-dark);
+  }
+  .day-row:last-child { border-bottom: none; }
+  .day-row.today-row { background: var(--sage-muted); margin: 0 -18px; padding: 10px 18px; border-radius: 8px; border-bottom: none; }
+  .day-name { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; color: var(--text-soft); min-width: 38px; padding-top: 2px; }
+  .day-desc { font-size: 13px; color: var(--text-mid); line-height: 1.5; }
+  .day-icon { font-size: 16px; flex-shrink: 0; }
+
+  /* ROADMAP */
+  .roadmap-row {
+    display: flex; align-items: center; gap: 12px;
+    padding: 10px 0; border-bottom: 1px solid var(--cream-dark);
+  }
+  .roadmap-row:last-child { border-bottom: none; }
+  .roadmap-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+  .roadmap-dot.active { background: var(--rose); }
+  .roadmap-dot.inactive { background: var(--cream-dark); border: 1.5px solid var(--text-soft); }
+  .roadmap-info { flex: 1; }
+  .roadmap-name { font-size: 13px; color: var(--text); font-weight: 500; }
+  .roadmap-sub { font-size: 11px; color: var(--text-soft); margin-top: 2px; }
+  .roadmap-pill {
+    font-size: 10px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px;
+    padding: 3px 9px; border-radius: 20px;
+  }
+  .roadmap-pill.current { background: var(--rose-muted); color: var(--rose); }
+  .roadmap-pill.future  { background: var(--cream-dark); color: var(--text-soft); }
+
+  /* PAIN RULES */
+  .rules-split { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .rule-col h4 { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+  .rule-col.ok h4   { color: var(--sage); }
+  .rule-col.warn h4 { color: var(--rose); }
+  .rule-col ul { list-style: none; padding: 0; }
+  .rule-col ul li {
+    font-size: 12px; color: var(--text-mid); padding: 3px 0;
+    padding-left: 14px; position: relative; line-height: 1.4;
+  }
+  .rule-col.ok   li::before { content: '✓'; position: absolute; left: 0; color: var(--sage); font-size: 11px; }
+  .rule-col.warn li::before { content: '!'; position: absolute; left: 0; color: var(--rose); font-size: 11px; font-weight: 700; }
+
+  /* MILESTONES */
+  .milestone-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .milestone-card {
+    background: var(--cream); border-radius: var(--radius-sm);
+    padding: 14px; text-align: center; border: 1.5px solid var(--cream-dark);
+    transition: all 0.2s;
+  }
+  .milestone-card.earned { background: var(--sage-muted); border-color: var(--sage); }
+  .milestone-card .ms-icon { font-size: 22px; margin-bottom: 4px; }
+  .milestone-card .ms-label { font-size: 12px; color: var(--text-mid); line-height: 1.3; }
+  .milestone-card.earned .ms-label { color: var(--sage); font-weight: 500; }
+  #milestone-grid > .section-label:first-child { margin-top: 4px; }
+
+  /* HISTORY TAB */
+  .history-empty { text-align: center; padding: 48px 20px; color: var(--text-soft); font-style: italic; font-size: 14px; }
+  .history-card {
+    background: var(--white); border-radius: var(--radius); padding: 16px;
+    margin-bottom: 10px; box-shadow: var(--shadow-sm);
+    position: relative; overflow: hidden; padding-left: 22px;
+    max-height: 320px;
+  }
+  .hc-bar { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--rose-light); border-radius: var(--radius) 0 0 var(--radius); }
+  .hc-bar.done     { background: var(--sage); }
+  .hc-bar.modified { background: var(--lavender); }
+  .hc-bar.skipped  { background: var(--rose); }
+  .hc-top { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px; }
+  .hc-date { font-size: 13px; font-weight: 500; color: var(--text); }
+  .hc-status { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.5px; padding: 3px 10px; border-radius: 20px; }
+  .hc-status.done     { background: var(--sage-muted);  color: var(--sage); }
+  .hc-status.modified { background: var(--lav-muted);   color: var(--lavender); }
+  .hc-status.skipped  { background: var(--rose-muted);  color: var(--rose); }
+  .hc-status.rest     { background: var(--cream-dark);  color: var(--text-soft); }
+    /* History cards: limit height for long notes */
+    .hc-notes {
+      font-size: 12px; color: var(--text-soft); font-style: italic; margin-top: 4px;
+      display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+  .hc-guidance { font-size: 11px; margin-top: 6px; padding: 5px 8px; border-radius: 6px; }
+  .hc-guidance.green  { background: var(--sage-muted); color: var(--sage); }
+  .hc-guidance.yellow { background: #fef9e7; color: #a0832a; }
+  .hc-guidance.red    { background: var(--rose-muted); color: var(--rose); }
+
+  /* SESSION DETAILS CARD */
+  .seg-group { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 0; }
+  .seg-btn {
+    background: var(--cream); border: 1.5px solid var(--cream-dark);
+    border-radius: 20px; padding: 7px 13px; font-size: 13px; color: var(--text-mid);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .seg-btn.active { background: var(--rose-muted); border-color: var(--rose); color: var(--rose); font-weight: 500; }
+  .treadmill-fields { display: none; }
+  .treadmill-fields.visible { display: block; }
+  .ctx-tag {
+    background: var(--cream); border: 1.5px solid var(--cream-dark);
+    border-radius: 20px; padding: 6px 12px; font-size: 12px; color: var(--text-mid);
+    cursor: pointer; font-family: 'DM Sans', sans-serif; transition: all 0.15s;
+  }
+  .ctx-tag.active { background: var(--lav-muted); border-color: var(--lavender); color: var(--lavender); }
+  .body-note { font-size: 11px; color: var(--text-soft); font-style: italic; margin-top: 10px; text-align: center; }
+  .hc-session-type { font-size: 12px; font-weight: 500; color: var(--rose); margin-bottom: 4px; }
+  .hc-tags { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 5px; }
+  .hc-tag { font-size: 11px; background: var(--lav-muted); color: var(--lavender); border-radius: 20px; padding: 2px 8px; white-space: nowrap; }
+  .hc-line { font-size: 12px; color: var(--text-soft); margin-top: 3px; line-height: 1.4; }
+  .hc-line strong { color: var(--text-mid); font-weight: 500; }
+
+  /* SYNC TAB */
+  .sync-btn {
+    width: 100%; border: none; border-radius: var(--radius-sm); padding: 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 14px; font-weight: 500;
+    cursor: pointer; margin-bottom: 10px; transition: opacity 0.2s;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+  }
+  .sync-btn:active { opacity: 0.85; }
+  .sync-btn.primary   { background: var(--rose); color: var(--white); }
+  .sync-btn.secondary { background: var(--sage-muted); color: var(--sage); }
+  .sync-btn.lav-btn   { background: var(--lav-muted); color: var(--lavender); }
+  .sync-btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 2px; }
+  .sync-btn-row .sync-btn { margin-bottom: 0; }
+  .sync-textarea {
+    width: 100%; min-height: 120px; background: var(--cream);
+    border: 1.5px solid var(--cream-dark); border-radius: var(--radius-sm);
+    padding: 12px; font-family: 'DM Sans', sans-serif; font-size: 12px;
+    color: var(--text-mid); resize: vertical; outline: none;
+  }
+  .sync-textarea.tall { min-height: 200px; }
+  .sync-hint { font-size: 12px; color: var(--text-soft); font-style: italic; margin-top: 8px; line-height: 1.5; }
+  .import-result {
+    border-radius: var(--radius-sm); padding: 11px 14px;
+    font-size: 13px; line-height: 1.5; margin-top: 10px; display: none;
+  }
+  .import-result.success { background: var(--sage-muted); color: var(--sage); }
+  .import-result.error   { background: var(--rose-muted); color: var(--rose); }
+  .import-result.warning { background: #fef9e7; color: #a0832a; border: 1px solid #f5d97a; }
+
+  /* COACH NOTE CARD */
+  .coach-card {
+    background: linear-gradient(135deg, var(--lav-muted) 0%, var(--sage-muted) 100%);
+    border-radius: var(--radius); padding: 18px; margin-bottom: 14px;
+  }
+  .coach-card-label { font-size: 10px; text-transform: uppercase; letter-spacing: 1px; color: var(--lavender); font-weight: 500; margin-bottom: 6px; }
+  .coach-card-note { font-size: 14px; color: var(--text); line-height: 1.6; margin-bottom: 10px; font-style: italic; }
+  .coach-meta { display: flex; gap: 8px; flex-wrap: wrap; }
+  .coach-pill {
+    font-size: 11px; font-weight: 500; padding: 4px 10px; border-radius: 20px; text-transform: capitalize;
+  }
+  .coach-pill.continue    { background: var(--sage-muted); color: var(--sage); border: 1px solid var(--sage-light); }
+  .coach-pill.repeat_week { background: var(--lav-muted); color: var(--lavender); }
+  .coach-pill.deload      { background: #fef9e7; color: #a0832a; }
+  .coach-pill.progress    { background: var(--rose-muted); color: var(--rose); }
+  .coach-updated { font-size: 11px; color: var(--text-soft); margin-top: 8px; }
+
+  /* REMINDERS CARD */
+  .reminder-list { list-style: none; padding: 0; }
+  .reminder-list li {
+    font-size: 13px; color: var(--text-mid); padding: 8px 0;
+    border-bottom: 1px solid var(--cream-dark); display: flex; align-items: flex-start; gap: 8px; line-height: 1.4;
+  }
+  .reminder-list li:last-child { border-bottom: none; }
+  .reminder-list li::before { content: '→'; color: var(--rose-light); font-size: 13px; flex-shrink: 0; margin-top: 1px; }
+
+  /* CAUTION BANNER */
+  .caution-banner {
+    background: #fef9e7; border: 1px solid #f5d97a; color: #a0832a;
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    font-size: 13px; line-height: 1.5; margin-bottom: 14px; display: none;
+  }
+
+  /* SECTION LABEL */
+  .section-label { font-size: 11px; font-weight: 500; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text-soft); margin: 18px 0 10px; }
+
+  /* INPUT INLINE ROW */
+  .inline-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+
+  /* TOAST */
+  .toast {
+    position: fixed; bottom: 30px; left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--text); color: var(--white); font-size: 13px;
+    padding: 10px 20px; border-radius: 20px; opacity: 0;
+    transition: all 0.3s; pointer-events: none; z-index: 999; white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+  /* QUICK LOG */
+  .quick-log-card {
+    background: var(--white); border-radius: var(--radius);
+    padding: 16px 18px; margin-bottom: 14px; box-shadow: var(--shadow-sm);
+  }
+  .quick-log-label {
+    font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--text-soft); font-weight: 500; margin-bottom: 10px;
+  }
+  .quick-log-btns { display: flex; flex-wrap: wrap; gap: 7px; }
+  .ql-btn {
+    background: var(--cream); border: 1.5px solid var(--cream-dark);
+    border-radius: 20px; padding: 7px 13px; font-size: 12px; font-weight: 500;
+    color: var(--text-mid); cursor: pointer; font-family: 'DM Sans', sans-serif;
+    transition: all 0.15s; white-space: nowrap;
+  }
+  .ql-btn:active { opacity: 0.8; }
+  .ql-hint {
+    font-size: 12px; color: var(--sage); font-style: italic;
+    margin-top: 10px; display: none; padding: 7px 10px;
+    background: var(--sage-muted); border-radius: var(--radius-sm);
+  }
+
+  /* SAVE SUCCESS BANNER */
+  .save-success {
+    background: linear-gradient(135deg, var(--sage-muted), var(--lav-muted));
+    border-radius: var(--radius); padding: 18px 20px; margin-bottom: 14px;
+    text-align: center; display: none; border: 1.5px solid var(--sage-light);
+  }
+  .save-success .ss-icon { font-size: 26px; margin-bottom: 6px; }
+  .save-success .ss-msg {
+    font-family: 'Playfair Display', serif; font-size: 16px;
+    color: var(--text); line-height: 1.5; font-style: italic;
+  }
+  .save-success .ss-sub {
+    font-size: 12px; color: var(--text-soft); margin-top: 5px;
+  }
+
+  /* DRAFT RESTORE BANNER */
+  .draft-banner {
+    display: none;
+    background: var(--lav-muted); border: 1.5px solid var(--lavender);
+    border-radius: var(--radius-sm); padding: 12px 14px;
+    margin-bottom: 14px; font-size: 13px; color: var(--text-mid);
+    line-height: 1.5;
+  }
+  .draft-banner strong { color: var(--lavender); }
+  .draft-banner-btns { display: flex; gap: 8px; margin-top: 8px; }
+  .draft-restore-btn {
+    background: var(--lavender); color: var(--white);
+    border: none; border-radius: 20px; padding: 7px 16px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer;
+  }
+  .draft-dismiss-btn {
+    background: none; color: var(--text-soft);
+    border: 1.5px solid var(--cream-dark); border-radius: 20px; padding: 7px 14px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; cursor: pointer;
+  }
+
+  /* STICKY SAVE BAR */
+  .sticky-save-bar {
+    position: fixed; bottom: 0; left: 50%;
+    transform: translateX(-50%);
+    width: 100%; max-width: 480px;
+    background: linear-gradient(to top, var(--cream) 80%, transparent);
+    padding: 18px 16px 20px;
+    z-index: 200;
+    display: none;
+  }
+  .sticky-save-bar .sticky-save-btn {
+    width: 100%;
+    background: var(--rose);
+    border: none;
+    border-radius: var(--radius);
+    padding: 14px 20px;
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--white);
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    box-shadow: 0 4px 18px rgba(212,144,122,0.38);
+    transition: opacity 0.2s, transform 0.1s;
+  }
+  .sticky-save-bar .sticky-save-btn:active { opacity: 0.9; transform: scale(0.99); }
+
+  /* Inline save btn: hidden on mobile (sticky bar handles it), visible on tablet+ */
+  #inline-save-btn { display: none; }
+  @media (min-width: 600px) {
+    #inline-save-btn { display: block; }
+  }
+
+  /* ONBOARDING CARD */
+  .onboarding-card {
+    background: linear-gradient(135deg, var(--sage-muted) 0%, var(--lav-muted) 100%);
+    border-radius: var(--radius); padding: 20px; margin-bottom: 18px;
+    border: 1px solid var(--sage-light);
+  }
+  .onboarding-title {
+    font-family: 'Playfair Display', serif; font-size: 17px;
+    color: var(--text); margin-bottom: 12px;
+  }
+  .onboarding-body { list-style: none; padding: 0; margin-bottom: 16px; }
+  .onboarding-body li {
+    font-size: 13px; color: var(--text-mid); padding: 5px 0;
+    display: flex; align-items: flex-start; gap: 8px; line-height: 1.5;
+  }
+  .onboarding-body li::before { content: '·'; color: var(--sage); font-size: 18px; line-height: 1.2; flex-shrink: 0; }
+  .onboarding-dismiss {
+    background: var(--sage); color: var(--white); border: none;
+    border-radius: 20px; padding: 9px 22px;
+    font-family: 'DM Sans', sans-serif; font-size: 13px; font-weight: 500;
+    cursor: pointer; transition: opacity 0.2s;
+  }
+  .onboarding-dismiss:active { opacity: 0.85; }
+
+  /* EMPTY STATE */
+  .empty-state {
+    text-align: center; padding: 40px 20px;
+    color: var(--text-soft); font-size: 14px; line-height: 1.6;
+    font-style: italic;
+  }
+  .empty-state-icon { font-size: 28px; margin-bottom: 10px; display: block; }
+
+  /* MOBILE POLISH */
+  .pill-opt, .seg-btn, .week-btn, .ql-btn, .ctx-tag {
+    min-height: 36px; display: inline-flex; align-items: center;
+  }
+  .status-btn { min-height: 56px; }
+  textarea { font-size: 16px; } /* prevent iOS zoom */
+  input[type="text"], input[type="number"], select { font-size: 16px; }
+
+  /* breathing room in dense sections */
+  .field-group { margin-bottom: 16px; }
+  .pill-row { gap: 8px; row-gap: 8px; }
+  .seg-group { gap: 8px; row-gap: 8px; }
+
+  /* week selector smooth scroll */
+  .week-selector { scroll-behavior: smooth; -webkit-overflow-scrolling: touch; padding: 2px 0 6px; }
+
+  /* pressed states */
+  .status-btn:active { transform: scale(0.97); opacity: 0.9; }
+  .seg-btn:active, .pill-opt:active, .week-btn:active, .ql-btn:active, .ctx-tag:active {
+    opacity: 0.75; transform: scale(0.97);
+  }
+
+  /* prevent horizontal overflow */
+  .content { overflow-x: hidden; }
+  .seg-group, .pill-row, .quick-log-btns { overflow-x: hidden; }
+
+  /* extra bottom clearance for sticky bar */
+  .content { padding-bottom: 120px; }
+
+  /* LOG DATE CARD */
+  .log-date-card {
+    padding: 14px 18px 16px;
+    margin-bottom: 14px;
+  }
+  .log-date-card .card-title {
+    margin-bottom: 10px;
+  }
+  .log-date-input {
+    width: 100%;
+    background: var(--cream);
+    border: 1.5px solid var(--cream-dark);
+    border-radius: var(--radius-sm);
+    padding: 11px 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 16px; /* prevents iOS zoom */
+    color: var(--text);
+    outline: none;
+    transition: border-color 0.2s;
+    -webkit-appearance: none;
+    appearance: none;
+    cursor: pointer;
+  }
+  .log-date-input:focus {
+    border-color: var(--lavender);
+  }
+  /* Backlogging badge — shown inline under input when past date selected */
+  .log-date-backlog-badge {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-top: 10px;
+    background: var(--lav-muted);
+    border: 1.5px solid var(--lavender);
+    border-radius: var(--radius-sm);
+    padding: 9px 13px;
+    font-size: 13px;
+    color: var(--lavender);
+    line-height: 1.4;
+  }
+  .log-date-backlog-badge em {
+    font-style: italic;
+    color: var(--text-mid);
+  }
+  .log-date-backlog-icon {
+    font-size: 16px;
+    flex-shrink: 0;
+  }
+
+  /* MULTI-SESSION LABEL */
+  .hc-session-num {
+    font-size: 10px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.8px;
+    color: var(--lavender); margin-bottom: 4px;
+  }
+  /* HISTORY DATE GROUP HEADER */
+  .history-date-group {
+    font-family: 'Playfair Display', serif; font-size: 14px; color: var(--text-mid);
+    margin: 18px 0 8px; padding-bottom: 5px;
+    border-bottom: 1px solid var(--cream-dark);
+  }
+  .history-date-group:first-child { margin-top: 0; }
+</style>
+</head>
+<body>
+
+<nav class="top-nav">
+  <div class="app-wordmark">HerStride <span>Foundation Phase</span></div>
+  <div class="tabs">
+    <button class="tab-btn active" onclick="switchTab('today',this)">Today</button>
+    <button class="tab-btn" onclick="switchTab('plan',this)">Plan</button>
+    <button class="tab-btn" onclick="switchTab('progress',this)">Progress</button>
+    <button class="tab-btn" onclick="switchTab('history',this)">History</button>
+    <button class="tab-btn" onclick="switchTab('sync',this)">Sync</button>
+  </div>
+</nav>
+
+<div class="content">
+
+  <!-- TODAY -->
+  <div id="tab-today" class="tab-panel active">
+    <div class="date-hero">
+      <div class="date-day" id="heroDay"></div>
+      <div class="date-full" id="heroFull"></div>
+      <div class="phase-pill" id="heroPill">Week 1 · Foundation &amp; Rebuild</div>
+    </div>
+
+    <!-- ONBOARDING CARD -->
+    <div class="onboarding-card" id="onboarding-card" style="display:none">
+      <div class="onboarding-title">Welcome to HerStride</div>
+      <ul class="onboarding-body">
+        <li>This app is about sustainable progress.</li>
+        <li>Easy effort is correct.</li>
+        <li>Recovery matters.</li>
+        <li>Repeating weeks is normal.</li>
+        <li>Small consistent work builds endurance.</li>
+      </ul>
+      <button class="onboarding-dismiss" onclick="dismissOnboarding()">Got it</button>
+    </div>
+
+    <!-- SAVE SUCCESS BANNER -->
+    <div class="save-success" id="save-success">
+      <div class="ss-icon">🌿</div>
+      <div class="ss-msg" id="ss-msg"></div>
+      <div class="ss-sub">Log saved — keep going.</div>
+    </div>
+
+    <!-- DRAFT RESTORE BANNER -->
+    <div class="draft-banner" id="draft-banner">
+      <strong>Unsaved draft found.</strong> Restore it?
+      <div class="draft-banner-btns">
+        <button class="draft-restore-btn" onclick="restoreDraft()">Restore</button>
+        <button class="draft-dismiss-btn" onclick="dismissDraft()">Dismiss</button>
+      </div>
+    </div>
+
+    <!-- LOG DATE SELECTOR (backlog support) -->
+    <div class="card log-date-card" id="log-date-card">
+      <div class="card-title"><span class="dot lav"></span>Logging Date</div>
+      <input type="date" id="log-date-input" class="log-date-input">
+      <div id="log-date-badge" class="log-date-backlog-badge" style="display:none;">
+        <span class="log-date-backlog-icon">📅</span>
+        <span>Backlogging — <em>logging a previous workout day</em></span>
+      </div>
+    </div>
+
+    <!-- QUICK LOG -->
+    <div class="quick-log-card">
+      <div class="quick-log-label">Quick Log</div>
+      <div class="quick-log-btns">
+        <button class="ql-btn" onclick="applyQuickLog('walk')">🚶‍♀️ Easy Walk</button>
+        <button class="ql-btn" onclick="applyQuickLog('strength')">💪 Strength/Core</button>
+        <button class="ql-btn" onclick="applyQuickLog('recovery')">🛌 Recovery Day</button>
+        <button class="ql-btn" onclick="applyQuickLog('modified')">✏️ Modified Session</button>
+        <button class="ql-btn" onclick="applyQuickLog('tough')">🌟 Tough Day But Showed Up</button>
+      </div>
+      <div class="ql-hint" id="ql-hint">Quick log applied — review and save when ready.</div>
+    </div>
+
+    <!-- CAUTION BANNER (shown when symptoms elevated) -->
+    <div class="caution-banner" id="caution-banner">
+      ⚠️ Recent symptoms suggest caution. Consider repeating or modifying this week.
+    </div>
+
+    <!-- COACH NOTE (from AI import) -->
+    <div id="coach-note-card" style="display:none">
+      <div class="coach-card">
+        <div class="coach-card-label">Coach Note</div>
+        <div class="coach-card-note" id="coach-note-text"></div>
+        <div class="coach-meta">
+          <span class="coach-pill" id="coach-phase-pill"></span>
+          <span class="coach-pill" id="coach-focus-pill" style="background:var(--cream);color:var(--text-mid)"></span>
+        </div>
+        <div class="coach-updated" id="coach-updated"></div>
+      </div>
+    </div>
+
+    <!-- REMINDERS CARD -->
+    <div class="card" id="reminders-card">
+      <div class="card-title"><span class="dot lav"></span>Reminders</div>
+      <ul class="reminder-list" id="reminders-list"></ul>
+    </div>
+
+    <div class="workout-card">
+      <div class="wc-label">Today's Plan</div>
+      <div class="wc-title" id="todayWorkoutTitle">15–20 Min Walk</div>
+      <div class="wc-detail" id="todayWorkoutDetail">+ Core &amp; glute activation work</div>
+    </div>
+
+    <!-- BODY CHECK BEFORE GUIDANCE -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Body Check</div>
+
+      <div class="field-group">
+        <label class="field-label">Hip Pain Today (0–10)</label>
+        <div class="scale-row">
+          <input type="range" id="f-hip" min="0" max="10" value="0" oninput="updateVal('f-hip','v-hip');updateGuidance()">
+          <span class="scale-val" id="v-hip">0</span>
+        </div>
+        <div class="scale-labels"><span>None</span><span>Mild</span><span>Severe</span></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Pelvic Floor Symptoms</label>
+        <div class="pill-row" id="pf-pills">
+          <button class="pill-opt" onclick="selectPill(this,'pf')">None</button>
+          <button class="pill-opt" onclick="selectPill(this,'pf')">Mild</button>
+          <button class="pill-opt" onclick="selectPill(this,'pf')">Moderate</button>
+          <button class="pill-opt" onclick="selectPill(this,'pf')">Worse</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Energy (1–10)</label>
+        <div class="scale-row">
+          <input type="range" id="f-energy" min="1" max="10" value="5" oninput="updateVal('f-energy','v-energy');updateGuidance()">
+          <span class="scale-val" id="v-energy">5</span>
+        </div>
+        <div class="scale-labels"><span>Depleted</span><span>OK</span><span>Strong</span></div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Sleep Quality (1–10)</label>
+        <div class="scale-row">
+          <input type="range" id="f-sleep" min="1" max="10" value="5" oninput="updateVal('f-sleep','v-sleep');updateGuidance()">
+          <span class="scale-val" id="v-sleep">5</span>
+        </div>
+        <div class="scale-labels"><span>Rough</span><span>OK</span><span>Great</span></div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">Soreness / Notes</label>
+        <input type="text" id="f-soreness" placeholder="Any tightness, soreness, or areas of note">
+      </div>
+    </div>
+
+    <!-- GUIDANCE BANNER -->
+    <div class="guidance-banner green" id="guidance-banner">
+      🟢 Green light for an easy, comfortable session.
+    </div>
+
+    <!-- SESSION STATUS -->
+    <div class="section-label">Workout Status</div>
+    <div class="status-grid">
+      <button class="status-btn" id="sb-done"     onclick="selectStatus('done')"><span class="sb-icon">✅</span>Done</button>
+      <button class="status-btn" id="sb-modified" onclick="selectStatus('modified')"><span class="sb-icon">✏️</span>Modified</button>
+      <button class="status-btn" id="sb-skipped"  onclick="selectStatus('skipped')"><span class="sb-icon">⏭️</span>Skipped</button>
+      <button class="status-btn" id="sb-rest"     onclick="selectStatus('rest')"><span class="sb-icon">🛌</span>Rest Day</button>
+    </div>
+
+    <!-- ACTIVITY -->
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Activity</div>
+      <div class="inline-row" style="margin-bottom:12px;">
+        <div class="field-group" style="margin-bottom:0">
+          <label class="field-label">Distance (mi)</label>
+          <input type="number" id="f-distance" step="0.1" min="0" placeholder="0.0" oninput="updatePaceDisplay()">
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label class="field-label">Time</label>
+          <input type="text" id="f-time" placeholder="35 or 35:00 or 1:05:30" oninput="updatePaceDisplay()">
+        </div>
+      </div>
+      <div id="pace-display" style="display:none;margin-bottom:12px;">
+        <div style="background:var(--sage-muted);border-radius:var(--radius-sm);padding:10px 13px;">
+          <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;color:var(--sage);margin-bottom:2px;">Avg Pace</div>
+          <div id="pace-value" style="font-size:18px;font-weight:500;color:var(--text);"></div>
+          <div id="pace-note" style="font-size:11px;color:var(--text-soft);font-style:italic;margin-top:3px;"></div>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Apple Watch Splits / Notes</label>
+        <p class="field-sub">Paste splits or notes exactly as they appear.</p>
+        <textarea id="f-splits" placeholder="Mile 1 - 16:20&#10;Mile 2 - 15:58&#10;0.25 mi - 4:05" oninput="updateSplitCount()" style="min-height:80px;"></textarea>
+        <div id="split-count" style="font-size:12px;color:var(--text-soft);margin-top:5px;display:none;"></div>
+      </div>
+      <!-- RUN/WALK INTERVAL FIELDS -->
+      <div id="runwalk-fields" style="display:none;">
+        <div style="height:1px;background:var(--cream-dark);margin-bottom:14px;"></div>
+        <div style="font-size:11px;font-weight:500;text-transform:uppercase;letter-spacing:0.5px;color:var(--rose);margin-bottom:10px;">Run/Walk Intervals</div>
+        <div class="inline-row" style="margin-bottom:12px;">
+          <div class="field-group" style="margin-bottom:0">
+            <label class="field-label">Jog Interval</label>
+            <input type="text" id="rw-jog" placeholder="e.g. 1 min">
+          </div>
+          <div class="field-group" style="margin-bottom:0">
+            <label class="field-label">Walk Interval</label>
+            <input type="text" id="rw-walk" placeholder="e.g. 2 min">
+          </div>
+        </div>
+        <div class="field-group" style="margin-bottom:12px;">
+          <label class="field-label">Repeats</label>
+          <input type="number" id="rw-repeats" min="1" placeholder="e.g. 6">
+        </div>
+        <div class="field-group" style="margin-bottom:10px;">
+          <label class="field-label">Completed as Planned?</label>
+          <div class="seg-group" id="rw-planned-group">
+            <button class="seg-btn" onclick="selectSeg(this,'rw-planned-group');updateRwModifiedField()">Yes</button>
+            <button class="seg-btn" onclick="selectSeg(this,'rw-planned-group');updateRwModifiedField()">Modified</button>
+            <button class="seg-btn" onclick="selectSeg(this,'rw-planned-group');updateRwModifiedField()">No</button>
+          </div>
+        </div>
+        <div id="rw-modified-field" style="display:none;margin-bottom:0;" class="field-group">
+          <label class="field-label">What changed?</label>
+          <textarea id="rw-modified-note" placeholder="Describe what you modified..." style="min-height:60px;"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <!-- SESSION DETAILS -->
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Session Details</div>
+
+      <div class="field-group">
+        <label class="field-label">Session Type</label>
+        <div class="seg-group" id="sess-type-group">
+          <button class="seg-btn" onclick="selectSeg(this,'sess-type-group');updateRunWalkFields()">Walk</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-type-group');updateRunWalkFields()">Run/Walk</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-type-group');updateRunWalkFields()">Strength</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-type-group');updateRunWalkFields()">Yoga</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-type-group');updateRunWalkFields()">Mobility</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-type-group');updateRunWalkFields()">Rest</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Location</label>
+        <div class="seg-group" id="sess-loc-group">
+          <button class="seg-btn" onclick="selectSeg(this,'sess-loc-group');updateTreadmillFields()">Outdoor</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-loc-group');updateTreadmillFields()">Treadmill</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-loc-group');updateTreadmillFields()">Indoor</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Stroller</label>
+        <div class="seg-group" id="sess-stroller-group">
+          <button class="seg-btn" onclick="selectSeg(this,'sess-stroller-group')">No</button>
+          <button class="seg-btn" onclick="selectSeg(this,'sess-stroller-group')">Yes</button>
+        </div>
+      </div>
+
+      <div class="inline-row" style="margin-bottom:12px;">
+        <div class="field-group" style="margin-bottom:0">
+          <label class="field-label">Avg Heart Rate</label>
+          <input type="number" id="sd-hr" min="0" max="220" placeholder="bpm">
+        </div>
+        <div class="field-group" style="margin-bottom:0">
+          <label class="field-label">Effort (1–10)</label>
+          <div class="scale-row">
+            <input type="range" id="sd-effort" min="1" max="10" value="5" oninput="updateVal('sd-effort','v-effort')">
+            <span class="scale-val" id="v-effort">5</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="treadmill-fields" id="treadmill-fields">
+        <div class="inline-row" style="margin-bottom:12px;">
+          <div class="field-group" style="margin-bottom:0">
+            <label class="field-label">Incline (%)</label>
+            <input type="number" id="sd-incline" min="0" max="15" step="0.5" placeholder="0">
+          </div>
+          <div class="field-group" style="margin-bottom:0">
+            <label class="field-label">Speed Notes</label>
+            <input type="text" id="sd-speed" placeholder="e.g. 3.2–3.8 mph">
+          </div>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-bottom:0">
+        <label class="field-label">Context Tags</label>
+        <div class="seg-group" id="ctx-tags-group" style="gap:6px;">
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">hot weather</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">poor sleep</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">hip felt tight</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">pelvic floor caution</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">felt strong</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">shortened intentionally</button>
+        </div>
+        <p class="body-note">Your body feedback matters more than the watch.</p>
+      </div>
+    </div>
+
+    <!-- MOOD -->
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Mood &amp; Basics</div>
+      <div class="field-group">
+        <label class="field-label">Mood / Motivation (1–10)</label>
+        <div class="scale-row">
+          <input type="range" id="f-mood" min="1" max="10" value="5" oninput="updateVal('f-mood','v-mood')">
+          <span class="scale-val" id="v-mood">5</span>
+        </div>
+        <div class="scale-labels"><span>Low</span><span>Steady</span><span>Thriving</span></div>
+      </div>
+      <div class="check-row" onclick="toggleCheck('c-hydration')">
+        <div class="check-box" id="c-hydration"></div>
+        <span class="check-label">💧 Hydration — drinking enough water</span>
+      </div>
+      <div class="check-row" onclick="toggleCheck('c-protein')">
+        <div class="check-box" id="c-protein"></div>
+        <span class="check-label">🥩 Protein — hitting my protein goal</span>
+      </div>
+    </div>
+
+    <!-- WOMEN'S HEALTH -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Women's Health</div>
+      <div class="field-group">
+        <label class="field-label">Weight</label>
+        <input type="number" id="wh-weight" inputmode="decimal" step="0.1" placeholder="optional" style="width:100%;border:1px solid var(--cream-dark);border-radius:var(--radius-sm);padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--white);">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Cycle Day</label>
+        <input type="number" id="wh-cycle-day" inputmode="numeric" step="1" min="1" placeholder="e.g. 14" style="width:100%;border:1px solid var(--cream-dark);border-radius:var(--radius-sm);padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--white);">
+      </div>
+      <div class="field-group">
+        <label class="field-label">Cycle Phase</label>
+        <div class="seg-group" id="wh-phase-group" style="gap:8px;flex-wrap:wrap;">
+          <button class="seg-btn" onclick="selectSeg(this,'wh-phase-group')">Period</button>
+          <button class="seg-btn" onclick="selectSeg(this,'wh-phase-group')">Follicular</button>
+          <button class="seg-btn" onclick="selectSeg(this,'wh-phase-group')">Ovulation</button>
+          <button class="seg-btn" onclick="selectSeg(this,'wh-phase-group')">Luteal</button>
+          <button class="seg-btn" onclick="selectSeg(this,'wh-phase-group')">Unsure</button>
+        </div>
+      </div>
+      <div class="field-group">
+        <label class="field-label">Symptoms / Context</label>
+        <div class="seg-group" id="wh-symptoms-group" style="gap:6px;flex-wrap:wrap;">
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Low Energy</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">High Energy</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Cravings</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Bloating</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Headache</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Sore</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Poor Sleep</button>
+          <button class="ctx-tag" onclick="toggleCtxTag(this)">Great Workout Day</button>
+        </div>
+      </div>
+      <div class="field-group" style="margin-bottom:0;">
+        <label class="field-label">Notes</label>
+        <input type="text" id="wh-notes" placeholder="Any cycle, energy, or recovery notes" style="width:100%;border:1px solid var(--cream-dark);border-radius:var(--radius-sm);padding:10px 12px;font-family:'DM Sans',sans-serif;font-size:16px;color:var(--text);background:var(--white);">
+      </div>
+    </div>
+
+    <!-- STRENGTH ROUTINE -->
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Strength &amp; Core Routine</div>
+      <p class="field-sub">Check off what you complete. Add reps/sets if you like.</p>
+      <div id="strength-list"></div>
+    </div>
+
+    <!-- RECOVERY NOTES -->
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Recovery Notes</div>
+      <p class="field-sub">Anything worth noting about how your body feels?</p>
+      <textarea id="f-notes" placeholder="Soreness, tightness, what felt good, what to remember..."></textarea>
+    </div>
+
+    <p class="encourage">Consistency beats perfect, every single time. 💛</p>
+
+    <!-- TODAY'S WIN -->
+    <div class="card" id="todays-win-card">
+      <div class="card-title"><span class="dot sage"></span>Today's Win</div>
+      <p class="field-sub">Select one thing you did for yourself today.</p>
+      <div class="seg-group" id="win-group" style="gap:8px;flex-wrap:wrap;">
+        <button class="seg-btn" onclick="selectSeg(this,'win-group')">I showed up</button>
+        <button class="seg-btn" onclick="selectSeg(this,'win-group')">I listened to my body</button>
+        <button class="seg-btn" onclick="selectSeg(this,'win-group')">I recovered on purpose</button>
+        <button class="seg-btn" onclick="selectSeg(this,'win-group')">I moved even when busy</button>
+        <button class="seg-btn" onclick="selectSeg(this,'win-group')">I kept it easy</button>
+        <button class="seg-btn" onclick="selectSeg(this,'win-group')">I did strength/core</button>
+      </div>
+    </div>
+
+    <button class="save-btn" id="inline-save-btn" onclick="saveDay()">Save Today</button>
+  </div>
+
+  <!-- PLAN -->
+  <div id="tab-plan" class="tab-panel">
+    <div class="phase-badge">
+      <h2>Foundation &amp; Rebuild</h2>
+      <p>8 weeks · Building your base safely</p>
+    </div>
+
+    <div class="section-label">Current Week</div>
+    <div class="week-selector" id="week-selector"></div>
+
+    <div id="plan-week-view"></div>
+
+    <div class="week-title">Phase Roadmap</div>
+    <div class="card">
+      <div class="roadmap-row">
+        <div class="roadmap-dot active"></div>
+        <div class="roadmap-info">
+          <div class="roadmap-name">Foundation / Rebuild</div>
+          <div class="roadmap-sub">8–12 weeks</div>
+        </div>
+        <span class="roadmap-pill current">Active</span>
+      </div>
+      <div class="roadmap-row">
+        <div class="roadmap-dot inactive"></div>
+        <div class="roadmap-info">
+          <div class="roadmap-name">Beginner Runner</div>
+          <div class="roadmap-sub">12–16 weeks</div>
+        </div>
+        <span class="roadmap-pill future">Up Next</span>
+      </div>
+      <div class="roadmap-row">
+        <div class="roadmap-dot inactive"></div>
+        <div class="roadmap-info">
+          <div class="roadmap-name">Endurance Build</div>
+          <div class="roadmap-sub">Ongoing</div>
+        </div>
+        <span class="roadmap-pill future">Future</span>
+      </div>
+      <div class="roadmap-row">
+        <div class="roadmap-dot inactive"></div>
+        <div class="roadmap-info">
+          <div class="roadmap-name">Marathon-Specific Block</div>
+          <div class="roadmap-sub">18–20 weeks</div>
+        </div>
+        <span class="roadmap-pill future">Future</span>
+      </div>
+    </div>
+
+    <div class="week-title">Progression Rules</div>
+    <div class="card">
+      <div class="rules-split">
+        <div class="rule-col ok">
+          <h4>OK to Advance</h4>
+          <ul>
+            <li>Conversational pace</li>
+            <li>Energy left after session</li>
+            <li>No limping</li>
+            <li>Hip pain ≤3/10</li>
+          </ul>
+        </div>
+        <div class="rule-col warn">
+          <h4>Repeat the Week</h4>
+          <ul>
+            <li>Hip pain &gt;3/10</li>
+            <li>PF symptoms worse</li>
+            <li>Pain lasting 48h+</li>
+            <li>Limping at all</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div id="tab-progress" class="tab-panel">
+    <div class="phase-badge">
+      <h2>Your Progress</h2>
+      <p>Non-scale victories, earned from your logs</p>
+    </div>
+    <div id="encourage-card" class="card" style="background:linear-gradient(135deg,var(--rose-muted),var(--lav-muted));border:none;">
+      <div style="font-size:10px;text-transform:uppercase;letter-spacing:1px;color:var(--rose);font-weight:500;margin-bottom:6px;">Today's Reminder</div>
+      <div id="encourage-msg" style="font-size:15px;color:var(--text);font-style:italic;line-height:1.6;font-family:'Playfair Display',serif;"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Lifetime Stats</div>
+      <div id="lifetime-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Consistency Streaks</div>
+      <div id="streak-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Journey Timeline</div>
+      <div id="journey-timeline"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Foundation Score</div>
+      <div id="foundation-score"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Year To Date</div>
+      <div id="year-to-date"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Personal Records</div>
+      <div id="personal-records"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>This Month</div>
+      <div id="monthly-recap"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Monthly History</div>
+      <div id="monthly-history"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Weekly Consistency</div>
+      <div id="consistency-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Endurance Growth</div>
+      <div id="endurance-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Body Feedback <span style="font-size:11px;color:var(--text-soft);font-weight:400;font-family:'DM Sans',sans-serif;">— last 7 logs</span></div>
+      <div id="body-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Women's Health Context</div>
+      <div id="womens-health-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Strength &amp; Core</div>
+      <div id="strength-stats"></div>
+    </div>
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Next Achievement</div>
+      <div id="next-achievement"></div>
+    </div>
+    <div id="milestone-grid"></div>
+  </div>
+
+  <!-- HISTORY -->
+  <div id="tab-history" class="tab-panel">
+    <div id="history-list"></div>
+  </div>
+
+  <!-- SYNC -->
+  <div id="tab-sync" class="tab-panel">
+
+    <div class="card">
+      <div class="card-title"><span class="dot"></span>Export to AI Coach</div>
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:12px;line-height:1.5;">
+        Generate your training summary and paste it into ChatGPT or Claude for personalized coaching.
+      </p>
+      <div class="field-group" style="margin-bottom:12px;">
+        <label class="field-label">Export Range</label>
+        <select id="export-range">
+          <option value="program14">Program + Last 14 Days (default)</option>
+          <option value="program">Program Only</option>
+          <option value="7">Last 7 Days</option>
+          <option value="14">Last 14 Days</option>
+          <option value="30">Last 30 Days</option>
+          <option value="full">Full Export</option>
+        </select>
+      </div>
+      <div class="sync-btn-row">
+        <button class="sync-btn primary" onclick="exportData()">📤 Generate Export</button>
+        <button class="sync-btn secondary" onclick="copyExport()">📋 Copy Export</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Export Preview</div>
+      <textarea class="sync-textarea tall" id="export-preview" placeholder="Exports help your AI coach understand the full picture. Tap Generate Export to build your coaching summary." readonly></textarea>
+    </div>
+
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>Import AI Coaching Update</div>
+      <p style="font-size:13px;color:var(--text-mid);margin-bottom:8px;line-height:1.5;">
+        Paste the <code style="font-size:11px;background:var(--cream-dark);padding:2px 5px;border-radius:4px;">HERSTRIDE_UPDATE</code> block returned by your AI coach below.
+      </p>
+      <textarea class="sync-textarea tall" id="import-area" placeholder="Paste HERSTRIDE_UPDATE block here...&#10;&#10;HERSTRIDE_UPDATE&#10;{ ... }&#10;END_HERSTRIDE_UPDATE"></textarea>
+      <button class="sync-btn lav-btn" style="margin-top:10px;" onclick="applyUpdate()">⬆️ Apply Update</button>
+      <div class="import-result" id="import-result"></div>
+      <p class="sync-hint">Your logs and history are never deleted by an import. Only coach notes, week, and reminders can be updated.</p>
+    </div>
+
+    <!-- APP TOOLS / BACKUP -->
+    <div class="card">
+      <div class="card-title"><span class="dot lav"></span>App Tools — Backup &amp; Restore</div>
+      <p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;line-height:1.5;">
+        Always create a backup before app updates. Restoring overwrites current HerStride data. A safety backup is created first.
+      </p>
+      <div class="sync-btn-row" style="margin-bottom:8px;">
+        <button class="sync-btn secondary" onclick="hsCreateBackup()">💾 Create Backup</button>
+        <button class="sync-btn lav-btn" onclick="hsCopyBackup()">📋 Copy Backup</button>
+      </div>
+      <div class="sync-btn-row" style="margin-bottom:8px;">
+        <button class="sync-btn lav-btn" onclick="hsRestoreBackup()">📥 Restore Backup</button>
+        <button class="sync-btn" style="background:var(--cream-dark);color:var(--rose);" onclick="hsClearData()">🗑️ Clear App Data</button>
+      </div>
+      <textarea class="sync-textarea" id="backup-area" placeholder="Create a backup before app updates. Paste a backup here to restore." style="margin-top:4px;min-height:120px;"></textarea>
+      <div class="import-result" id="backup-result"></div>
+    </div>
+
+    <!-- PRE-SEND CHECKLIST -->
+    <div class="card">
+      <div class="card-title"><span class="dot sage"></span>Pre-Send Checklist</div>
+      <ul class="reminder-list">
+        <li>Save a normal walk</li>
+        <li>Save a modified day</li>
+        <li>Refresh and restore a draft</li>
+        <li>Export to AI</li>
+        <li>Import HERSTRIDE_UPDATE</li>
+        <li>Export a backup</li>
+        <li>Clear test data before sending</li>
+      </ul>
+    </div>
+
+    <div style="text-align:center;padding:6px 0 16px;font-size:11px;color:var(--text-soft);letter-spacing:0.3px;">HerStride v10.0 — Women's Health Foundation</div>
+
+  </div>
+
+</div>
+
+<div class="toast" id="toast"></div>
+
+<!-- STICKY SAVE BAR (Today tab only, mobile) -->
+<div class="sticky-save-bar" id="sticky-save-bar">
+  <button class="sticky-save-btn" id="sticky-save-btn-label" onclick="saveDay()">Save Today</button>
+</div>
+
+<script>
+// ─── CONSTANTS ─────────────────────────────────────────────
+const STORAGE_KEY  = 'herstride_logs_v1';
+const WEEK_KEY     = 'herstride_current_week';
+const COACH_KEY    = 'herStrideCoachState';
+const PLAN_ADJ_KEY = 'herstride_plan_adjustments';
+const DRAFT_KEY    = 'herstride_draft_v1';
+const ONBOARD_KEY  = 'herstride_onboarding_dismissed_v1';
+
+// ─── BACKUP / RESTORE CONSTANTS (declared early to avoid TDZ) ──
+const HS_APP_VERSION    = '10.0';
+const HS_SCHEMA_VERSION = 1;
+const HS_OWNED_KEYS = [
+  'herstride_logs_v1',
+  'herstride_current_week',
+  'herStrideCoachState',
+  'herstride_plan_adjustments',
+  'herstride_draft_v1',
+  'herstride_onboarding_dismissed_v1'
+];
+
+const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
+// Foundation plan data (default — never mutated directly)
+const PLAN_DEFAULT = {
+  1: ['15–20 min walk + core/glute','Yoga or rest','15–20 min walk','Strength workout','Rest or easy walk','20–25 min walk','Rest'],
+  2: ['15–20 min walk + core/glute','Yoga or rest','15–20 min walk','Strength workout','Rest or easy walk','20–25 min walk','Rest'],
+  3: ['20–25 min walk + core/glute','Yoga or rest','20–25 min walk','Strength workout','Rest or easy walk','25–35 min walk','Rest'],
+  4: ['20–25 min walk + core/glute','Yoga or rest','20–25 min walk','Strength workout','Rest or easy walk','25–35 min walk','Rest'],
+  5: ['20–25 min walk + core/glute','Yoga or rest','Run/walk intro — 1 min jog / 2 min walk × 6','Strength workout','Rest or easy walk','30–40 min walk','Rest'],
+  6: ['20–25 min walk + core/glute','Yoga or rest','Run/walk intro — 1 min jog / 2 min walk × 6','Strength workout','Rest or easy walk','30–40 min walk','Rest'],
+  7: ['25–30 min walk + core/glute','Yoga or rest','Run/walk — 90 sec jog / 2 min walk × 6 or 2 min jog / 2 min walk × 5','Strength workout','Rest or easy walk','35–45 min walk','Rest'],
+  8: ['25–30 min walk + core/glute','Yoga or rest','Run/walk — 90 sec jog / 2 min walk × 6 or 2 min jog / 2 min walk × 5','Strength workout','Rest or easy walk','35–45 min walk','Rest'],
+};
+
+// Working PLAN — starts as a deep copy of defaults, then merges stored adjustments
+const PLAN = JSON.parse(JSON.stringify(PLAN_DEFAULT));
+
+// Merge any persisted plan adjustments
+(function mergePlanAdjustments() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(PLAN_ADJ_KEY) || '{}');
+    Object.entries(stored).forEach(([week, days]) => {
+      const w = parseInt(week);
+      if (PLAN[w] && Array.isArray(days)) {
+        days.forEach((val, idx) => {
+          if (typeof val === 'string' && val.length) PLAN[w][idx] = val;
+        });
+      }
+    });
+  } catch(e) { /* ignore */ }
+})();
+
+const DAY_ICONS = ['☁️','🚶‍♀️','🧘‍♀️','🚶‍♀️','💪','🌿','🚶‍♀️'];
+
+const EXERCISES = [
+  { id: 'glute-bridges', name: 'Glute Bridges',  cue: 'Squeeze glutes, don\'t arch low back.' },
+  { id: 'dead-bugs',     name: 'Dead Bugs',       cue: 'Move slowly, ribs down.' },
+  { id: 'bird-dogs',     name: 'Bird Dogs',       cue: 'Reach long, keep hips level.' },
+  { id: 'step-ups',      name: 'Step-Ups',        cue: 'Drive through whole foot.' },
+  { id: 'clamshells',    name: 'Clamshells',      cue: 'Small controlled range.' },
+  { id: 'calf-raises',   name: 'Calf Raises',     cue: 'Slow up, slow down.' },
+  { id: 'side-planks',   name: 'Side Planks',     cue: 'Short holds are fine.' },
+];
+
+const MILESTONES = [
+  { id: 'first-log',       icon: '🌱', label: '1 day logged',              check: l => l.length >= 1 },
+  { id: 'first-walk',      icon: '🚶‍♀️', label: 'First logged walk',         check: l => l.some(x => (x.sessionType === 'Walk' || (x.plannedWorkout||'').toLowerCase().includes('walk')) && x.status === 'done') },
+  { id: 'first-treadmill', icon: '🏃‍♀️', label: 'First treadmill session',   check: l => l.some(x => x.sessionLocation === 'Treadmill' && x.status === 'done') },
+  { id: 'first-stroller',  icon: '🚼',  label: 'First stroller session',    check: l => l.some(x => x.stroller === 'Yes' && x.status === 'done') },
+  { id: 'week-logged',     icon: '📅',  label: '1 full week logged',        check: l => l.length >= 7 },
+  { id: 'first-strength',  icon: '💪',  label: 'First strength session',    check: l => l.some(x => (x.strengthCount || 0) > 0) },
+  { id: '30-min-walk',     icon: '⏱️',  label: 'First 30-min session',      check: l => l.some(x => parseTimeToMinutes(x.time) >= 30 && x.status === 'done') },
+  { id: 'first-run-walk',  icon: '🏅',  label: 'First run/walk session',    check: l => l.some(x => x.sessionType === 'Run/Walk' && x.status === 'done') },
+  { id: '5-sessions',      icon: '⭐',  label: 'Five total sessions',       check: l => l.filter(x => x.status === 'done' || x.status === 'modified').length >= 5 },
+  { id: '3-stable',        icon: '🌿',  label: 'Three stable-body days',    check: l => l.filter(x => parseInt(x.hip||0) <= 3 && (x.pelvicFloor === 'None' || x.pelvicFloor === 'Mild')).length >= 3 },
+  { id: 'shortened-win',   icon: '🎯',  label: 'Shortened intentionally',   check: l => l.some(x => Array.isArray(x.contextTags) && x.contextTags.includes('shortened intentionally')) },
+
+  // ─── Phase 9A.2: Lifetime mile/session/hour/streak milestones ───
+  { id: 'first-mile',      icon: '🌟',  label: 'First Mile',                check: l => getCompletedSessions(l).reduce((s,x) => s + safeNum(x.distance,0), 0) >= 1 },
+  { id: '5-miles',         icon: '🌟',  label: '5 Total Miles',             check: l => getCompletedSessions(l).reduce((s,x) => s + safeNum(x.distance,0), 0) >= 5 },
+  { id: '10-miles',        icon: '🌟',  label: '10 Total Miles',            check: l => getCompletedSessions(l).reduce((s,x) => s + safeNum(x.distance,0), 0) >= 10 },
+  { id: '25-miles',        icon: '🌟',  label: '25 Total Miles',            check: l => getCompletedSessions(l).reduce((s,x) => s + safeNum(x.distance,0), 0) >= 25 },
+  { id: '50-miles',        icon: '🌟',  label: '50 Total Miles',            check: l => getCompletedSessions(l).reduce((s,x) => s + safeNum(x.distance,0), 0) >= 50 },
+  { id: '100-miles',       icon: '🌟',  label: '100 Total Miles',           check: l => getCompletedSessions(l).reduce((s,x) => s + safeNum(x.distance,0), 0) >= 100 },
+  { id: '10-sessions',     icon: '⭐',  label: '10 Sessions',               check: l => getCompletedSessions(l).length >= 10 },
+  { id: '25-sessions',     icon: '⭐',  label: '25 Sessions',               check: l => getCompletedSessions(l).length >= 25 },
+  { id: '50-sessions',     icon: '⭐',  label: '50 Sessions',               check: l => getCompletedSessions(l).length >= 50 },
+  { id: 'first-hour',      icon: '⏳',  label: 'First Hour of Movement',    check: l => getCompletedSessions(l).reduce((s,x) => s + safeMins(x.time), 0) >= 60 },
+  { id: '10-hours',        icon: '⏳',  label: '10 Hours of Movement',      check: l => getCompletedSessions(l).reduce((s,x) => s + safeMins(x.time), 0) >= 600 },
+  { id: 'first-backlog',   icon: '🗓️',  label: 'First Backlogged Workout',  check: l => l.some(x => isBackloggedSession(x)) },
+  { id: 'first-two-a-day', icon: '☀️',  label: 'First Two-A-Day',           check: l => hasTwoADay(l) },
+  { id: 'first-month',     icon: '📆',  label: 'First Month Active',        check: l => {
+      const dates = Array.from(getActiveDateSet(l)).sort();
+      if (dates.length < 2) return false;
+      const first = new Date(dates[0] + 'T00:00:00');
+      const last = new Date(dates[dates.length-1] + 'T00:00:00');
+      return (last - first) / 86400000 >= 28;
+    } },
+  { id: 'three-weeks-consistent', icon: '🔥', label: 'Three Weeks Consistent', check: l => {
+      const dates = Array.from(getActiveDateSet(l));
+      const weekCounts = {};
+      dates.forEach(d => {
+        const wk = getWeekKey(d);
+        weekCounts[wk] = (weekCounts[wk] || 0) + 1;
+      });
+      const qualifyingWeeks = Object.values(weekCounts).filter(c => c >= 3).length;
+      return qualifyingWeeks >= 3;
+    } },
+
+  // ─── Phase 9A.3: Personal Records & Monthly Recap achievements ───
+  { id: '250-minutes',    icon: '⏳', label: 'First 250 Minutes',   check: l => getCompletedSessions(l).reduce((s,x) => s + safeMins(x.time), 0) >= 250 },
+  { id: '500-minutes',    icon: '⏳', label: 'First 500 Minutes',   check: l => getCompletedSessions(l).reduce((s,x) => s + safeMins(x.time), 0) >= 500 },
+  { id: '1000-minutes',   icon: '⏳', label: 'First 1000 Minutes',  check: l => getCompletedSessions(l).reduce((s,x) => s + safeMins(x.time), 0) >= 1000 },
+  { id: '365-minutes',    icon: '🎂', label: 'First 365 Minutes',   check: l => getCompletedSessions(l).reduce((s,x) => s + safeMins(x.time), 0) >= 365 },
+  { id: '10-active-days', icon: '📍', label: 'First 10 Active Days', check: l => getActiveDateSet(l).size >= 10 },
+  { id: '25-active-days', icon: '📍', label: 'First 25 Active Days', check: l => getActiveDateSet(l).size >= 25 },
+  { id: '50-active-days', icon: '📍', label: 'First 50 Active Days', check: l => getActiveDateSet(l).size >= 50 },
+];
+
+// ─── Phase 9A.4: Milestone Categories (display grouping/order only) ───
+// Each entry lists milestone IDs in display order. MILESTONES array order
+// (used by buildExport/Next Achievement) is left untouched.
+const MILESTONE_CATEGORIES = [
+  { name: 'Getting Started', ids: ['first-log', 'first-walk', 'first-mile', '30-min-walk', 'first-hour'] },
+  { name: 'Consistency', ids: ['week-logged', '5-sessions', '10-sessions', '25-sessions', '50-sessions', '10-active-days', '25-active-days', '50-active-days', 'three-weeks-consistent', 'first-month'] },
+  { name: 'Movement', ids: ['first-treadmill', 'first-stroller', 'first-run-walk', 'first-backlog', 'first-two-a-day'] },
+  { name: 'Endurance', ids: ['5-miles', '10-miles', '25-miles', '50-miles', '100-miles', '250-minutes', '365-minutes', '500-minutes', '1000-minutes', '10-hours'] },
+  { name: 'Strength & Support', ids: ['first-strength', '3-stable', 'shortened-win'] },
+];
+
+// ─── ESCAPE HTML HELPER ────────────────────────────────────
+function escapeHTML(val) {
+  if (val === undefined || val === null || (typeof val === 'number' && isNaN(val))) return '';
+  const s = String(val);
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+}
+
+// ─── STATE ─────────────────────────────────────────────────
+let logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+let currentWeek = parseInt(localStorage.getItem(WEEK_KEY) || '1');
+let selectedStatus = '';
+let selectedPF = '';
+let coachState = JSON.parse(localStorage.getItem(COACH_KEY) || 'null') || {
+  coachNote: '', phaseStatus: '', weeklyFocus: '', reminders: [], manualMilestones: [], lastUpdated: null
+};
+
+// ─── INIT ──────────────────────────────────────────────────
+(function init() {
+  const now = new Date();
+  document.getElementById('heroDay').textContent = DAYS[now.getDay()];
+  document.getElementById('heroFull').textContent = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
+  document.getElementById('heroPill').textContent = `Week ${currentWeek} · Foundation & Rebuild`;
+
+  renderTodayWorkout();
+  renderStrengthList();
+  renderWeekSelector();
+  renderPlanWeek();
+  renderHistory();
+  renderMilestones();
+  renderProgressTab();
+  renderCoachCard();
+  renderReminders();
+  checkCautionBanner();
+  checkDraftBanner();
+  updateStickySaveBar('today');
+  checkOnboarding();
+  initLogDateInput();
+})();
+
+// ─── TABS ──────────────────────────────────────────────────
+function switchTab(tab, btn) {
+  document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + tab).classList.add('active');
+  if (btn) btn.classList.add('active');
+  if (tab === 'history') renderHistory();
+  if (tab === 'progress') { renderMilestones(); renderProgressTab(); }
+  updateStickySaveBar(tab);
+}
+
+// ─── SLIDERS ───────────────────────────────────────────────
+function updateVal(sliderId, valId) {
+  document.getElementById(valId).textContent = document.getElementById(sliderId).value;
+}
+
+// ─── TODAY WORKOUT ─────────────────────────────────────────
+function renderTodayWorkout() {
+  const dayIdx = new Date().getDay(); // 0=Sun
+  const planIdx = dayIdx === 0 ? 6 : dayIdx - 1;
+  const weekPlan = PLAN[currentWeek];
+  const workout = weekPlan[planIdx];
+  document.getElementById('todayWorkoutTitle').textContent = workout;
+  document.getElementById('todayWorkoutDetail').textContent = getDayDetail(dayIdx);
+}
+
+function getDayDetail(dayIdx) {
+  const details = {
+    0: 'Rest — let your body absorb the week\'s work 🌿',
+    1: 'Easy conversational pace + activation',
+    2: 'Listen to your body today',
+    3: 'Easy conversational pace',
+    4: 'Glutes, hips, and core focus 💪',
+    5: 'Your choice — honor how you feel',
+    6: 'Your longest walk of the week 🌸',
+  };
+  return details[dayIdx] || '';
+}
+
+// ─── STRENGTH LIST ─────────────────────────────────────────
+function renderStrengthList() {
+  document.getElementById('strength-list').innerHTML = EXERCISES.map(ex => `
+    <div class="ex-row">
+      <div class="check-box" id="ex-${escapeHTML(ex.id)}" onclick="toggleCheck('ex-${escapeHTML(ex.id)}')"></div>
+      <div class="ex-info">
+        <div class="ex-name">${escapeHTML(ex.name)}</div>
+        <div class="check-cue">${escapeHTML(ex.cue)}</div>
+        <input class="ex-note-input" id="exnote-${escapeHTML(ex.id)}" type="text" placeholder="reps / sets (optional)">
+      </div>
+    </div>
+  `).join('');
+}
+
+// ─── GUIDANCE ──────────────────────────────────────────────
+function updateGuidance() {
+  const hip    = parseInt(document.getElementById('f-hip').value);
+  const energy = parseInt(document.getElementById('f-energy').value);
+  const sleep  = parseInt(document.getElementById('f-sleep').value);
+  const pf     = selectedPF;
+  const banner = document.getElementById('guidance-banner');
+
+  if (hip >= 4) {
+    banner.className = 'guidance-banner red';
+    banner.textContent = '⚠️ Consider modifying today. Walk easy, shorten the session, or choose mobility.';
+  } else if (pf === 'Worse') {
+    banner.className = 'guidance-banner red';
+    banner.textContent = '⚠️ Prioritize recovery and consider pelvic floor/core work instead of impact.';
+  } else if (energy <= 3 || sleep <= 3) {
+    banner.className = 'guidance-banner yellow';
+    banner.textContent = '💛 Keep today easy. A shorter session still counts.';
+  } else {
+    banner.className = 'guidance-banner green';
+    banner.textContent = '🟢 Green light for an easy, comfortable session.';
+  }
+}
+
+function getGuidanceLevel() {
+  const hip    = parseInt(document.getElementById('f-hip').value);
+  const energy = parseInt(document.getElementById('f-energy').value);
+  const sleep  = parseInt(document.getElementById('f-sleep').value);
+  if (hip >= 4 || selectedPF === 'Worse') return 'red';
+  if (energy <= 3 || sleep <= 3) return 'yellow';
+  return 'green';
+}
+
+// ─── QUICK LOG ─────────────────────────────────────────────
+const QUICK_LOG_PRESETS = {
+  walk:     { status: 'done',     sessionType: 'Walk',     win: 'I showed up' },
+  strength: { status: 'done',     sessionType: 'Strength', win: 'I did strength/core' },
+  recovery: { status: 'rest',     sessionType: 'Rest',     win: 'I recovered on purpose' },
+  modified: { status: 'modified', sessionType: null,       win: 'I listened to my body' },
+  tough:    { status: 'modified', sessionType: null,       win: 'I moved even when busy' },
+};
+
+function applyQuickLog(type) {
+  const p = QUICK_LOG_PRESETS[type];
+  if (!p) return;
+
+  selectStatus(p.status);
+
+  if (p.sessionType) {
+    const typeBtn = Array.from(document.querySelectorAll('#sess-type-group .seg-btn'))
+      .find(b => b.textContent === p.sessionType);
+    if (typeBtn) { selectSeg(typeBtn, 'sess-type-group'); updateRunWalkFields(); }
+  }
+
+  const winBtn = Array.from(document.querySelectorAll('#win-group .seg-btn'))
+    .find(b => b.textContent === p.win);
+  if (winBtn) selectSeg(winBtn, 'win-group');
+
+  const hint = document.getElementById('ql-hint');
+  hint.style.display = 'block';
+  setTimeout(() => { hint.style.display = 'none'; }, 4000);
+}
+
+// ─── STATUS ────────────────────────────────────────────────
+function selectStatus(status) {
+  selectedStatus = status;
+  ['done','modified','skipped','rest'].forEach(s => {
+    document.getElementById('sb-' + s).className = 'status-btn' + (s === status ? ` selected-${s}` : '');
+  });
+}
+
+// ─── PILLS ─────────────────────────────────────────────────
+function selectPill(el, group) {
+  el.closest('.pill-row').querySelectorAll('.pill-opt').forEach(p => p.classList.remove('selected'));
+  el.classList.add('selected');
+  if (group === 'pf') { selectedPF = el.textContent; updateGuidance(); }
+}
+
+// ─── SESSION DETAIL SEGMENTS & TAGS ────────────────────────
+function selectSeg(el, groupId) {
+  document.querySelectorAll('#' + groupId + ' .seg-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function updateTreadmillFields() {
+  const active = document.querySelector('#sess-loc-group .seg-btn.active');
+  const show = active && active.textContent === 'Treadmill';
+  document.getElementById('treadmill-fields').classList.toggle('visible', show);
+}
+
+function updateRunWalkFields() {
+  const type = getActiveSeg('sess-type-group');
+  document.getElementById('runwalk-fields').style.display = type === 'Run/Walk' ? 'block' : 'none';
+}
+
+function updateRwModifiedField() {
+  const planned = getActiveSeg('rw-planned-group');
+  document.getElementById('rw-modified-field').style.display = planned === 'Modified' ? 'block' : 'none';
+}
+
+function parseTimeToMinutes(raw) {
+  if (!raw) return 0;
+  const s = raw.trim();
+  if (/^\d+(\.\d+)?$/.test(s)) return parseFloat(s);
+  const parts = s.split(':').map(Number);
+  if (parts.some(isNaN)) return 0;
+  if (parts.length === 2) return parts[0] + parts[1] / 60;
+  if (parts.length === 3) return parts[0] * 60 + parts[1] + parts[2] / 60;
+  return 0;
+}
+
+function calcPace(minutes, miles) {
+  if (!miles || miles <= 0 || !minutes || minutes <= 0) return '';
+  const paceMin = minutes / miles;
+  const m = Math.floor(paceMin);
+  const s = Math.round((paceMin - m) * 60);
+  return `${m}:${String(s).padStart(2,'0')} /mi`;
+}
+
+const PACE_NOTES = [
+  'Pace is information, not judgment.',
+  'Easy is productive.',
+  'The goal is to finish feeling like you could do more.',
+];
+
+function updatePaceDisplay() {
+  const dist = parseFloat(document.getElementById('f-distance').value);
+  const mins = parseTimeToMinutes(document.getElementById('f-time').value);
+  const pace = (dist > 0 && mins > 0) ? calcPace(mins, dist) : '';
+  const el = document.getElementById('pace-display');
+  if (pace) {
+    document.getElementById('pace-value').textContent = pace;
+    document.getElementById('pace-note').textContent = PACE_NOTES[Math.floor(Math.random() * PACE_NOTES.length)];
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function updateSplitCount() {
+  const val = document.getElementById('f-splits').value || '';
+  const lines = val.split('\n').filter(l => l.trim() !== '').length;
+  const el = document.getElementById('split-count');
+  if (lines > 0) {
+    el.textContent = `${lines} split line${lines > 1 ? 's' : ''} detected`;
+    el.style.display = 'block';
+  } else {
+    el.style.display = 'none';
+  }
+}
+
+function toggleCtxTag(el) {
+  el.classList.toggle('active');
+}
+
+function getActiveSeg(groupId) {
+  const el = document.querySelector('#' + groupId + ' .seg-btn.active');
+  return el ? el.textContent : '';
+}
+
+function getActiveCtxTags() {
+  return Array.from(document.querySelectorAll('#ctx-tags-group .ctx-tag.active')).map(el => el.textContent);
+}
+
+// ─── WOMEN'S HEALTH (v10.0) ─────────────────────────────────
+function getWomensHealthFromForm() {
+  const weightEl = document.getElementById('wh-weight');
+  const cycleDayEl = document.getElementById('wh-cycle-day');
+  const notesEl = document.getElementById('wh-notes');
+  const symptoms = Array.from(document.querySelectorAll('#wh-symptoms-group .ctx-tag.active')).map(el => el.textContent);
+  return {
+    weight: weightEl ? (weightEl.value || '') : '',
+    cycleDay: cycleDayEl ? (cycleDayEl.value || '') : '',
+    cyclePhase: getActiveSeg('wh-phase-group'),
+    symptoms: symptoms,
+    notes: notesEl ? (notesEl.value || '') : '',
+  };
+}
+
+function resetWomensHealthForm() {
+  const weightEl = document.getElementById('wh-weight');
+  const cycleDayEl = document.getElementById('wh-cycle-day');
+  const notesEl = document.getElementById('wh-notes');
+  if (weightEl) weightEl.value = '';
+  if (cycleDayEl) cycleDayEl.value = '';
+  if (notesEl) notesEl.value = '';
+  document.querySelectorAll('#wh-phase-group .seg-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('#wh-symptoms-group .ctx-tag').forEach(t => t.classList.remove('active'));
+}
+
+function restoreWomensHealthDraft(draft) {
+  if (!draft || typeof draft !== 'object') return;
+  const weightEl = document.getElementById('wh-weight');
+  const cycleDayEl = document.getElementById('wh-cycle-day');
+  const notesEl = document.getElementById('wh-notes');
+  if (weightEl) weightEl.value = draft.whWeight || '';
+  if (cycleDayEl) cycleDayEl.value = draft.whCycleDay || '';
+  if (notesEl) notesEl.value = draft.whNotes || '';
+  if (draft.whCyclePhase) {
+    const btn = Array.from(document.querySelectorAll('#wh-phase-group .seg-btn')).find(b => b.textContent === draft.whCyclePhase);
+    if (btn) btn.classList.add('active');
+  }
+  if (Array.isArray(draft.whSymptoms)) {
+    document.querySelectorAll('#wh-symptoms-group .ctx-tag').forEach(t => {
+      if (draft.whSymptoms.includes(t.textContent)) t.classList.add('active');
+    });
+  }
+}
+
+// Build a compact display line for a session's women's health data, or '' if nothing to show
+function formatWomensHealthLine(log) {
+  if (!log || typeof log !== 'object') return '';
+  const wh = log.womensHealth;
+  if (!wh || typeof wh !== 'object') return '';
+
+  const lines = [];
+
+  const phase = safeStr(wh.cyclePhase);
+  const cycleDay = safeStr(wh.cycleDay);
+  if (phase || cycleDay) {
+    const parts = [];
+    if (phase) parts.push(escapeHTML(phase));
+    if (cycleDay) parts.push(`Day ${escapeHTML(cycleDay)}`);
+    lines.push(`Cycle: ${parts.join(' · ')}`);
+  }
+
+  const symptoms = Array.isArray(wh.symptoms) ? wh.symptoms.filter(Boolean) : [];
+  if (symptoms.length) {
+    lines.push(`Symptoms: ${symptoms.map(s => escapeHTML(s)).join(', ')}`);
+  }
+
+  const weight = safeStr(wh.weight);
+  if (weight) {
+    lines.push(`Weight: ${escapeHTML(weight)} lb`);
+  }
+
+  const notes = safeStr(wh.notes);
+  if (notes) {
+    const trimmed = notes.length > 100 ? notes.slice(0,100) + '…' : notes;
+    lines.push(`Notes: ${escapeHTML(trimmed)}`);
+  }
+
+  return lines.join('<br>');
+}
+
+// Aggregate stats across logs for the Progress tab / export
+function getWomensHealthStats(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const entries = (Array.isArray(flat) ? flat : []).filter(l => l && typeof l === 'object' && l.womensHealth && typeof l.womensHealth === 'object');
+
+  if (!entries.length) {
+    return { hasData: false };
+  }
+
+  // Most common cycle phase
+  const phaseCounts = {};
+  entries.forEach(l => {
+    const p = safeStr(l.womensHealth.cyclePhase);
+    if (p) phaseCounts[p] = (phaseCounts[p] || 0) + 1;
+  });
+  const topPhaseEntry = Object.entries(phaseCounts).sort((a,b) => b[1]-a[1])[0];
+  const topPhase = topPhaseEntry ? topPhaseEntry[0] : '';
+
+  // Sessions with symptoms logged + most common symptom
+  let sessionsWithSymptoms = 0;
+  const symptomCounts = {};
+  entries.forEach(l => {
+    const syms = Array.isArray(l.womensHealth.symptoms) ? l.womensHealth.symptoms.filter(Boolean) : [];
+    if (syms.length) {
+      sessionsWithSymptoms++;
+      syms.forEach(s => { symptomCounts[s] = (symptomCounts[s] || 0) + 1; });
+    }
+  });
+  const topSymptomEntry = Object.entries(symptomCounts).sort((a,b) => b[1]-a[1])[0];
+  const topSymptom = topSymptomEntry ? topSymptomEntry[0] : '';
+
+  // Average energy by phase (uses session's energy field, if present)
+  const energyByPhase = {};
+  entries.forEach(l => {
+    const p = safeStr(l.womensHealth.cyclePhase);
+    const e = safeNum(l.energy, null);
+    if (p && e !== null) {
+      if (!energyByPhase[p]) energyByPhase[p] = { sum: 0, count: 0 };
+      energyByPhase[p].sum += e;
+      energyByPhase[p].count++;
+    }
+  });
+  const avgEnergyByPhase = {};
+  Object.keys(energyByPhase).forEach(p => {
+    const d = energyByPhase[p];
+    if (d.count >= 2) avgEnergyByPhase[p] = (d.sum / d.count).toFixed(1);
+  });
+
+  return {
+    hasData: true,
+    totalEntries: entries.length,
+    topPhase,
+    sessionsWithSymptoms,
+    topSymptom,
+    avgEnergyByPhase,
+  };
+}
+
+// ─── CHECKBOX ──────────────────────────────────────────────
+function toggleCheck(id) {
+  const el = document.getElementById(id);
+  el.classList.toggle('checked');
+  el.textContent = el.classList.contains('checked') ? '✓' : '';
+}
+
+// ─── WEEK SELECTOR ─────────────────────────────────────────
+function renderWeekSelector() {
+  const container = document.getElementById('week-selector');
+  container.innerHTML = Array.from({length: 8}, (_, i) => i + 1).map(w => `
+    <button class="week-btn${w === currentWeek ? ' active' : ''}" onclick="setWeek(${w})">Week ${w}</button>
+  `).join('');
+}
+
+function setWeek(w) {
+  currentWeek = w;
+  localStorage.setItem(WEEK_KEY, w);
+  document.getElementById('heroPill').textContent = `Week ${w} · Foundation & Rebuild`;
+  renderWeekSelector();
+  renderPlanWeek();
+  renderTodayWorkout();
+}
+
+// ─── PLAN WEEK VIEW ────────────────────────────────────────
+function renderPlanWeek() {
+  const weekPlan = PLAN[currentWeek];
+  const todayIdx = new Date().getDay();
+  const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const planIdxToJsDay = [1,2,3,4,5,6,0];
+
+  // currentWeek matches the stored week the user is on.
+  // Only highlight today's row if viewing the week the user currently is on.
+  const viewingCurrentWeek = (currentWeek === parseInt(localStorage.getItem(WEEK_KEY) || currentWeek));
+
+  let note = '';
+  if (currentWeek >= 5 && currentWeek <= 6) note = '<p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">⚡ Only introduce run/walk if pain and symptoms are stable.</p>';
+  if (currentWeek >= 7) note = '<p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">⚡ Only progress if body tolerated Weeks 5–6.</p>';
+
+  const rows = weekPlan.map((workout, i) => {
+    const jsDay = planIdxToJsDay[i];
+    const isToday = viewingCurrentWeek && jsDay === todayIdx;
+    // Show logged indicator if any log exists for a date that falls on this weekday
+    const isLogged = isLoggedForWeekday(jsDay);
+    const dayLabel = dayNames[i]
+      + (isToday ? ' ★' : '')
+      + (isLogged && !isToday ? ' ✓' : '');
+    return `
+      <div class="day-row${isToday ? ' today-row' : ''}">
+        <span class="day-icon">${DAY_ICONS[jsDay]}</span>
+        <span class="day-name" style="${isLogged && !isToday ? 'color:var(--sage);' : ''}">${escapeHTML(dayLabel)}</span>
+        <span class="day-desc">${escapeHTML(workout)}</span>
+      </div>
+    `;
+  }).join('');
+
+  document.getElementById('plan-week-view').innerHTML = `
+    <div class="week-title">Week ${currentWeek} Schedule</div>
+    <div class="card" style="padding:14px 18px;">${note}${rows}</div>
+  `;
+}
+
+// Returns true if any log exists whose dateISO falls on the same JS weekday
+// within the current Mon–Sun calendar week (so it persists after midnight).
+function isLoggedForWeekday(jsDay) {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  monday.setHours(0,0,0,0);
+  const sunday = new Date(monday);
+  sunday.setDate(monday.getDate() + 6);
+  sunday.setHours(23,59,59,999);
+
+  return flattenLogs(logs).some(l => {
+    if (!l.dateISO) return false;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    return d >= monday && d <= sunday && d.getDay() === jsDay && (l.status === 'done' || l.status === 'modified');
+  });
+}
+
+// ─── NEXT ACHIEVEMENT PREVIEW ──────────────────────────────
+function renderNextAchievement(flatOverride) {
+  const el = document.getElementById('next-achievement');
+  if (!el) return;
+  try {
+    const flat = flatOverride || flattenLogs(logs);
+    if (!Array.isArray(MILESTONES) || MILESTONES.length === 0) {
+      el.innerHTML = '<div class="empty-state" style="padding:14px 0;"><span class="empty-state-icon">✨</span>All current achievements earned. Time for the next chapter.</div>';
+      return;
+    }
+    const next = MILESTONES.find(m => {
+      try { return m && typeof m.check === 'function' && !m.check(flat); }
+      catch (e) { return false; }
+    });
+    if (!next) {
+      el.innerHTML = '<div class="empty-state" style="padding:14px 0;"><span class="empty-state-icon">✨</span>All current achievements earned. Time for the next chapter.</div>';
+      return;
+    }
+    el.innerHTML = `
+      <div style="display:flex;align-items:center;gap:12px;padding:6px 0;">
+        <div style="font-size:28px;line-height:1;">${escapeHTML(next.icon || '🔒')}</div>
+        <div>
+          <div style="font-size:14px;font-weight:500;color:var(--text);">${escapeHTML(next.label || 'Next achievement')}</div>
+          <div style="font-size:12px;color:var(--text-soft);font-style:italic;margin-top:2px;">Keep logging — this one is within reach.</div>
+        </div>
+      </div>`;
+  } catch (e) {
+    el.innerHTML = '<div class="empty-state" style="padding:14px 0;"><span class="empty-state-icon">✨</span>All current achievements earned. Time for the next chapter.</div>';
+  }
+}
+
+// ─── MILESTONES ────────────────────────────────────────────
+function renderMilestones() {
+  const flat = flattenLogs(logs);
+  const grid = document.getElementById('milestone-grid');
+  if (!grid) return;
+  if (!Array.isArray(MILESTONES)) { grid.innerHTML = ''; return; }
+
+  const renderCard = (m) => {
+    if (!m || typeof m.check !== 'function') return '';
+    let earned = false;
+    try { earned = !!m.check(flat); } catch (e) { earned = false; }
+    return `
+      <div class="milestone-card${earned ? ' earned' : ''}">
+        <div class="ms-icon">${earned ? (m.icon || '⭐') : '🔒'}</div>
+        <div class="ms-label">${escapeHTML(m.label || '')}</div>
+      </div>
+    `;
+  };
+
+  try {
+    const byId = {};
+    MILESTONES.forEach(m => { if (m && m.id) byId[m.id] = m; });
+    const usedIds = new Set();
+    let html = '';
+
+    const categories = Array.isArray(MILESTONE_CATEGORIES) ? MILESTONE_CATEGORIES : [];
+    categories.forEach(cat => {
+      if (!cat || !Array.isArray(cat.ids)) return;
+      const cards = cat.ids.map(id => {
+        const m = byId[id];
+        if (!m) return '';
+        usedIds.add(id);
+        return renderCard(m);
+      }).filter(Boolean).join('');
+      if (cards) {
+        html += `<div class="section-label">${escapeHTML(cat.name || '')}</div><div class="milestone-grid">${cards}</div>`;
+      }
+    });
+
+    // Special Milestones: anything not placed in a category above
+    const leftovers = MILESTONES.filter(m => m && m.id && !usedIds.has(m.id)).map(renderCard).filter(Boolean).join('');
+    if (leftovers) {
+      html += `<div class="section-label">Special Milestones</div><div class="milestone-grid">${leftovers}</div>`;
+    }
+
+    grid.innerHTML = html || MILESTONES.map(renderCard).filter(Boolean).join('');
+  } catch (e) {
+    // Fallback: ungrouped rendering, preserves prior behavior
+    grid.innerHTML = MILESTONES.map(renderCard).filter(Boolean).join('');
+  }
+}
+
+// ─── DATA MODEL HELPERS ────────────────────────────────────
+/*
+HerStride v9.4.6 QA checklist:
+- Empty logs render Progress safely.
+- Legacy single-session logs still work.
+- Multi-session logs still work.
+- Backlogged sessions still work.
+- Milestones render grouped without duplicates.
+- Next Achievement still works.
+- Export builds without crashing.
+*/
+// logs[] may contain two shapes:
+//   OLD: { dateISO, status, ... }  (single session per date entry)
+//   NEW: { dateISO, sessions: [{...}, ...] }  (multi-session wrapper)
+//
+// flattenLogs() always returns a plain array of session objects
+// (with dateISO guaranteed on each), suitable for Progress/History reads.
+
+function flattenLogs(logArr) {
+  const out = [];
+  (Array.isArray(logArr) ? logArr : []).forEach(entry => {
+    if (!entry || typeof entry !== 'object') return;
+    if (Array.isArray(entry.sessions)) {
+      entry.sessions.forEach(s => {
+        if (s && typeof s === 'object') out.push(Object.assign({}, s, { dateISO: entry.dateISO }));
+      });
+    } else {
+      out.push(entry);
+    }
+  });
+  return out;
+}
+
+// Return the multi-session entry for a dateISO, or null
+function findDayEntry(dateISO) {
+  return logs.find(l => l.dateISO === dateISO) || null;
+}
+
+// ─── PHASE 9A.2 HELPERS — Lifetime Stats / Streaks / Milestones ───
+
+// All sessions across the whole history that count as "completed"
+function getCompletedSessions(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  return (Array.isArray(flat) ? flat : []).filter(l => l && typeof l === 'object' && (l.status === 'done' || l.status === 'modified'));
+}
+
+// Set of distinct calendar dates (YYYY-MM-DD) that have at least one completed session
+function getActiveDateSet(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const set = new Set();
+  (Array.isArray(flat) ? flat : []).forEach(l => {
+    if (l && typeof l === 'object' && (l.status === 'done' || l.status === 'modified') &&
+        typeof l.dateISO === 'string' && !isNaN(new Date(l.dateISO + 'T00:00:00').getTime())) {
+      set.add(l.dateISO);
+    }
+  });
+  return set;
+}
+
+// ISO week key (e.g. "2026-W24") for a YYYY-MM-DD date string, Mon-Sun weeks
+function getWeekKey(dateISO) {
+  if (!dateISO) return 'unknown';
+  const d = new Date(dateISO + 'T00:00:00');
+  if (isNaN(d.getTime())) return 'unknown';
+  // Shift to the Monday of this week
+  const day = d.getDay();
+  const diffToMonday = day === 0 ? -6 : 1 - day;
+  const monday = new Date(d);
+  monday.setDate(d.getDate() + diffToMonday);
+  return monday.toISOString().split('T')[0]; // use Monday's date as the week key
+}
+
+// Does this session's logged date fall before the date implied by its id (an ISO timestamp)?
+function isBackloggedSession(log) {
+  try {
+    if (!log || typeof log !== 'object' || !log.dateISO || !log.id) return false;
+    if (isNaN(new Date(log.dateISO + 'T00:00:00').getTime())) return false;
+    const idDate = new Date(log.id);
+    if (isNaN(idDate.getTime())) return false;
+    const idISO = idDate.toISOString().split('T')[0];
+    return log.dateISO < idISO;
+  } catch (e) {
+    return false;
+  }
+}
+
+// Does any date in logs have 2+ sessions?
+function hasTwoADay(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const counts = {};
+  for (const l of (Array.isArray(flat) ? flat : [])) {
+    if (!l || typeof l !== 'object' || typeof l.dateISO !== 'string' || !l.dateISO) continue;
+    counts[l.dateISO] = (counts[l.dateISO] || 0) + 1;
+    if (counts[l.dateISO] >= 2) return true;
+  }
+  return false;
+}
+
+// Lifetime totals from completed sessions
+function getLifetimeStats() {
+  const completed = getCompletedSessions();
+  if (!completed.length) {
+    return {
+      totalMiles: 0,
+      totalSessions: 0,
+      totalMinutes: 0,
+      longestWalk: 0,
+      longestSession: 0,
+      hasData: false
+    };
+  }
+  let totalMiles = 0, totalMinutes = 0, longestWalk = 0, longestSession = 0;
+  completed.forEach(l => {
+    if (!l || typeof l !== 'object') return;
+    const dist = safeNum(l.distance, 0);
+    const mins = safeMins(l.time);
+    totalMiles += dist;
+    totalMinutes += mins;
+    if (mins > longestSession) longestSession = mins;
+    const isWalk = l.sessionType === 'Walk' || (!l.sessionType && (l.plannedWorkout || '').toLowerCase().includes('walk'));
+    if (isWalk && dist > longestWalk) longestWalk = dist;
+  });
+  return {
+    totalMiles,
+    totalSessions: completed.length,
+    totalMinutes,
+    longestWalk,
+    longestSession,
+    hasData: true
+  };
+}
+
+// ─── PHASE 9A.5 HELPER — Foundation Score ───
+function getFoundationScore() {
+  const flat = flattenLogs(logs);
+  const completedAll = getCompletedSessions(flat);
+  if (!flat.length) {
+    return { hasData: false };
+  }
+
+  const now = new Date();
+  const cutoff = new Date(now);
+  cutoff.setDate(cutoff.getDate() - 13);
+  cutoff.setHours(0,0,0,0);
+
+  const within14 = flat.filter(l => {
+    if (!l || typeof l !== 'object' || typeof l.dateISO !== 'string') return false;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    if (isNaN(d.getTime())) return false;
+    return d >= cutoff && d <= now;
+  });
+
+  // 1. Recent consistency — active dates in last 14 days (max 35, 7+ = full)
+  const activeDates14 = new Set();
+  within14.forEach(l => {
+    if (l.status === 'done' || l.status === 'modified') activeDates14.add(l.dateISO);
+  });
+  const recentConsistency = activeDates14.size;
+  const consistencyScore = Math.min(35, Math.round((Math.min(recentConsistency, 7) / 7) * 35));
+
+  // 2. Strength support — strength sessions in last 14 days (max 20, 4+ = full)
+  const strengthSessions14 = within14.filter(l => (l.strengthCount || 0) > 0).length;
+  const strengthScore = Math.min(20, Math.round((Math.min(strengthSessions14, 4) / 4) * 20));
+
+  // 3. Recovery balance — rest/recovery days in last 14 days (max 15, 2+ = full)
+  const recoveryDays14 = within14.filter(l => l.status === 'rest').length;
+  const recoveryScore = Math.min(15, Math.round((Math.min(recoveryDays14, 2) / 2) * 15));
+
+  // 4. Body stability — stable-body completed sessions in last 14 logs (max 20, 5+ = full)
+  const last14Logs = flat.slice(0, 14);
+  const stableSessions = last14Logs.filter(l => {
+    if (!l || typeof l !== 'object') return false;
+    if (!(l.status === 'done' || l.status === 'modified')) return false;
+    const hipVal = parseInt(l.hip || 0);
+    const pf = l.pelvicFloor;
+    const pfOk = pf === 'None' || pf === 'Mild' || pf === undefined || pf === null || pf === '' || pf === 'Not recorded';
+    return hipVal <= 3 && pfOk;
+  }).length;
+  const stabilityScore = Math.min(20, Math.round((Math.min(stableSessions, 5) / 5) * 20));
+
+  // 5. Total foundation — total completed sessions all time (max 10, 10+ = full)
+  const totalFoundationSessions = completedAll.length;
+  const foundationScoreComponent = Math.min(10, Math.round((Math.min(totalFoundationSessions, 10) / 10) * 10));
+
+  let score = consistencyScore + strengthScore + recoveryScore + stabilityScore + foundationScoreComponent;
+  score = Math.max(0, Math.min(100, Math.round(score)));
+
+  let label, interpretation;
+  if (score <= 24) { label = 'Starting'; interpretation = 'The foundation starts with one supportive choice.'; }
+  else if (score <= 49) { label = 'Building'; interpretation = 'Habits are starting to take shape.'; }
+  else if (score <= 74) { label = 'Growing'; interpretation = 'Consistency is becoming visible.'; }
+  else { label = 'Thriving'; interpretation = 'Your foundation is getting strong.'; }
+
+  return {
+    hasData: true,
+    score,
+    label,
+    interpretation,
+    recentConsistency,
+    strengthSessions14,
+    recoveryDays14,
+    stableSessions,
+    totalFoundationSessions
+  };
+}
+
+// ─── PHASE 9A.3 HELPERS — Personal Records / Monthly Recap ───
+
+// Sum of completed-session distance, grouped by Monday-Sunday week key
+function getWeeklyDistanceTotals(flatOverride) {
+  const completed = getCompletedSessions(flatOverride);
+  const totals = {};
+  completed.forEach(l => {
+    if (!l || typeof l.dateISO !== 'string') return;
+    const wk = getWeekKey(l.dateISO);
+    totals[wk] = (totals[wk] || 0) + safeNum(l.distance, 0);
+  });
+  return totals;
+}
+
+// Count of distinct active dates, grouped by Monday-Sunday week key
+function getWeeklyActiveDayTotals(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const byWeek = {};
+  flat.forEach(l => {
+    if (!l || typeof l !== 'object') return;
+    if (!(l.status === 'done' || l.status === 'modified')) return;
+    if (typeof l.dateISO !== 'string' || isNaN(new Date(l.dateISO + 'T00:00:00').getTime())) return;
+    const wk = getWeekKey(l.dateISO);
+    if (!byWeek[wk]) byWeek[wk] = new Set();
+    byWeek[wk].add(l.dateISO);
+  });
+  const totals = {};
+  Object.keys(byWeek).forEach(wk => { totals[wk] = byWeek[wk].size; });
+  return totals;
+}
+
+// Personal records derived from completed sessions only
+function getPersonalRecords(flatOverride) {
+  const completed = getCompletedSessions(flatOverride);
+  if (!completed.length) {
+    return {
+      hasData: false,
+      longestDistance: 0,
+      longestSessionTime: 0,
+      fastestPaceStr: '',
+      fastestPaceVal: 0,
+      bestWeekDistance: 0,
+      bestWeekActiveDays: 0
+    };
+  }
+
+  let longestDistance = 0, longestSessionTime = 0;
+  let fastestPaceVal = 0, fastestPaceStr = '';
+
+  completed.forEach(l => {
+    const dist = safeNum(l.distance, 0);
+    const mins = safeMins(l.time);
+    if (dist > longestDistance) longestDistance = dist;
+    if (mins > longestSessionTime) longestSessionTime = mins;
+
+    if (dist > 0 && mins > 0) {
+      const paceMinPerMile = mins / dist;
+      if (fastestPaceVal === 0 || paceMinPerMile < fastestPaceVal) {
+        fastestPaceVal = paceMinPerMile;
+        fastestPaceStr = calcPace(mins, dist);
+      }
+    }
+  });
+
+  const weeklyDist = getWeeklyDistanceTotals(flatOverride);
+  const bestWeekDistance = Object.values(weeklyDist).length ? Math.max(...Object.values(weeklyDist)) : 0;
+
+  const weeklyActive = getWeeklyActiveDayTotals(flatOverride);
+  const bestWeekActiveDays = Object.values(weeklyActive).length ? Math.max(...Object.values(weeklyActive)) : 0;
+
+  return {
+    hasData: true,
+    longestDistance,
+    longestSessionTime,
+    fastestPaceStr,
+    fastestPaceVal,
+    bestWeekDistance,
+    bestWeekActiveDays
+  };
+}
+
+// ─── PHASE 9A.4 HELPER — Journey Timeline ───
+// Walks completed sessions chronologically and builds a list of earned
+// milestone events with the date each was first achieved.
+function getJourneyTimeline(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const completed = getCompletedSessions(flat)
+    .filter(l => l && typeof l === 'object' && typeof l.dateISO === 'string' && !isNaN(new Date(l.dateISO + 'T00:00:00').getTime()))
+    .slice()
+    .sort((a, b) => (a.dateISO < b.dateISO ? -1 : a.dateISO > b.dateISO ? 1 : 0));
+
+  const events = [];
+  const earned = {};
+  const mark = (id, icon, title, dateISO) => {
+    if (earned[id] || !dateISO) return;
+    earned[id] = true;
+    events.push({ id, icon, title, dateISO });
+  };
+
+  let cumMiles = 0;
+  let cumSessions = 0;
+
+  completed.forEach(l => {
+    cumSessions++;
+    cumMiles += safeNum(l.distance, 0);
+
+    // First Session Logged
+    mark('first-session', '🌱', 'First Session Logged', l.dateISO);
+
+    // First Walk Completed
+    const isWalk = l.sessionType === 'Walk' || (!l.sessionType && (l.plannedWorkout || '').toLowerCase().includes('walk'));
+    if (isWalk) mark('first-walk', '🚶', 'First Walk Completed', l.dateISO);
+
+    // First Strength Session
+    if (l.sessionType === 'Strength' || (l.strengthCount || 0) > 0) {
+      mark('first-strength', '💪', 'First Strength Session', l.dateISO);
+    }
+
+    // First Run/Walk Session
+    if (l.sessionType === 'Run/Walk') {
+      mark('first-run-walk', '🏃', 'First Run/Walk Session', l.dateISO);
+    }
+
+    // Session-count milestones
+    if (cumSessions === 10) mark('10-sessions', '⭐', 'First 10 Sessions', l.dateISO);
+    if (cumSessions === 25) mark('25-sessions', '🏅', 'First 25 Sessions', l.dateISO);
+
+    // Mileage milestones
+    if (cumMiles >= 1)  mark('1-mile',   '👟', 'First Mile', l.dateISO);
+    if (cumMiles >= 10) mark('10-miles', '🛣️', 'First 10 Miles', l.dateISO);
+    if (cumMiles >= 25) mark('25-miles', '🏆', 'First 25 Miles', l.dateISO);
+    if (cumMiles >= 50) mark('50-miles', '💯', 'First 50 Miles', l.dateISO);
+  });
+
+  // First Month Active — reuse existing 'first-month' milestone logic if it has been earned
+  try {
+    const firstMonthDef = Array.isArray(MILESTONES) ? MILESTONES.find(m => m && m.id === 'first-month') : null;
+    if (firstMonthDef && typeof firstMonthDef.check === 'function' && firstMonthDef.check(flat)) {
+      const dates = Array.from(getActiveDateSet(flat)).sort();
+      if (dates.length >= 2) {
+        const first = new Date(dates[0] + 'T00:00:00');
+        let earnedDate = null;
+        for (let i = 1; i < dates.length; i++) {
+          const d = new Date(dates[i] + 'T00:00:00');
+          if ((d - first) / 86400000 >= 28) { earnedDate = dates[i]; break; }
+        }
+        if (earnedDate) mark('first-month', '📅', 'First Month Active', earnedDate);
+      }
+    }
+  } catch (e) { /* safely ignore */ }
+
+  // Newest first, limit to 10
+  events.sort((a, b) => (a.dateISO < b.dateISO ? 1 : a.dateISO > b.dateISO ? -1 : 0));
+  return events.slice(0, 10);
+}
+
+
+function getMonthlyStats(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const now = new Date();
+  const y = now.getFullYear();
+  const m = now.getMonth();
+
+  let miles = 0, sessions = 0, minutes = 0;
+  const activeDates = new Set();
+
+  flat.forEach(l => {
+    if (!l || typeof l !== 'object') return;
+    if (!(l.status === 'done' || l.status === 'modified')) return;
+    if (typeof l.dateISO !== 'string') return;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    if (isNaN(d.getTime())) return;
+    if (d.getFullYear() !== y || d.getMonth() !== m) return;
+
+    miles += safeNum(l.distance, 0);
+    minutes += safeMins(l.time);
+    sessions++;
+    activeDates.add(l.dateISO);
+  });
+
+  return {
+    miles,
+    sessions,
+    minutes,
+    activeDays: activeDates.size,
+    hasData: sessions > 0
+  };
+}
+
+// ─── PHASE 9A.6 HELPER — Monthly History ───
+function getMonthlyHistory(limit = 6) {
+  const completed = getCompletedSessions();
+  const months = {};
+
+  completed.forEach(l => {
+    if (!l || typeof l !== 'object' || typeof l.dateISO !== 'string') return;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    if (isNaN(d.getTime())) return;
+
+    const monthKey = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
+    if (!months[monthKey]) {
+      months[monthKey] = {
+        monthKey,
+        label: d.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }),
+        sessions: 0,
+        miles: 0,
+        minutes: 0,
+        activeDates: new Set()
+      };
+    }
+
+    months[monthKey].sessions++;
+    months[monthKey].miles += safeNum(l.distance, 0);
+    months[monthKey].minutes += safeMins(l.time);
+    months[monthKey].activeDates.add(l.dateISO);
+  });
+
+  return Object.values(months)
+    .sort((a, b) => b.monthKey.localeCompare(a.monthKey))
+    .slice(0, limit)
+    .map(m => ({
+      monthKey: m.monthKey,
+      label: m.label,
+      sessions: m.sessions,
+      miles: m.miles,
+      activeDays: m.activeDates.size,
+      minutes: m.minutes
+    }));
+}
+
+// ─── PHASE 9A.6 HELPER — Year To Date ───
+function getYearToDateStats(flatOverride) {
+  const flat = flatOverride || flattenLogs(logs);
+  const completed = getCompletedSessions(flat);
+  const y = new Date().getFullYear();
+
+  let miles = 0, minutes = 0, sessions = 0;
+  const activeDates = new Set();
+
+  completed.forEach(l => {
+    if (!l || typeof l !== 'object') return;
+    if (typeof l.dateISO !== 'string') return;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    if (isNaN(d.getTime())) return;
+    if (d.getFullYear() !== y) return;
+
+    miles += safeNum(l.distance, 0);
+    minutes += safeMins(l.time);
+    sessions++;
+    activeDates.add(l.dateISO);
+  });
+
+  return {
+    miles,
+    sessions,
+    minutes,
+    activeDays: activeDates.size,
+    hasData: sessions > 0
+  };
+}
+
+const MONTHLY_RECAP_NOTES = [
+  'Every month builds your foundation.',
+  'Consistency compounds.',
+  'Progress is rarely loud.',
+  'Small efforts add up to real change.',
+  'Showing up is the win.'
+];
+
+// Current and best consistency streaks, based on distinct active calendar dates
+function getStreakStats() {
+  const activeDates = getActiveDateSet();
+  if (!activeDates.size) {
+    return { current: 0, best: 0 };
+  }
+
+  const sorted = Array.from(activeDates).sort();
+  const dateSet = new Set(sorted);
+
+  // Best streak: longest run of consecutive calendar days
+  let best = 0, run = 0, prev = null;
+  sorted.forEach(dStr => {
+    const d = new Date(dStr + 'T00:00:00');
+    if (prev !== null) {
+      const diffDays = Math.round((d - prev) / 86400000);
+      run = (diffDays === 1) ? run + 1 : 1;
+    } else {
+      run = 1;
+    }
+    if (run > best) best = run;
+    prev = d;
+  });
+
+  // Current streak: consecutive active days ending today, or ending yesterday
+  // if today has no active log yet.
+  const now = new Date();
+  const todayISO = now.toISOString().split('T')[0];
+  const yesterday = new Date(now);
+  yesterday.setDate(now.getDate() - 1);
+  const yesterdayISO = yesterday.toISOString().split('T')[0];
+
+  let anchor = null;
+  if (dateSet.has(todayISO)) anchor = todayISO;
+  else if (dateSet.has(yesterdayISO)) anchor = yesterdayISO;
+
+  let current = 0;
+  if (anchor) {
+    let cursor = new Date(anchor + 'T00:00:00');
+    while (dateSet.has(cursor.toISOString().split('T')[0])) {
+      current++;
+      cursor.setDate(cursor.getDate() - 1);
+    }
+  }
+
+  return { current, best };
+}
+
+
+// ─── SAVE (multi-session aware) ───────────────────────────
+function saveDay() {
+  const logDateInput = document.getElementById('log-date-input');
+  const logDateISO = logDateInput ? logDateInput.value : '';
+  const now = new Date();
+  const todayISO = now.toISOString().split('T')[0];
+  const targetISO = logDateISO || todayISO;
+
+  // Resolve planned workout for the target date's day-of-week
+  const targetDate = new Date(targetISO + 'T12:00:00');
+  const dayIdx = targetDate.getDay();
+  const planIdx = dayIdx === 0 ? 6 : dayIdx - 1;
+  const plannedWorkout = PLAN[currentWeek][planIdx];
+
+  const strengthCompleted = EXERCISES.filter(ex => document.getElementById('ex-' + ex.id)?.classList.contains('checked'));
+  const strengthNotes = EXERCISES.reduce((acc, ex) => {
+    const val = document.getElementById('exnote-' + ex.id)?.value;
+    if (val) acc[ex.name] = val;
+    return acc;
+  }, {});
+
+  const distVal = document.getElementById('f-distance').value || '';
+  const timeVal = document.getElementById('f-time').value || '';
+  const parsedMinutes = parseTimeToMinutes(timeVal);
+  const dist = parseFloat(distVal);
+  const avgPace = (dist > 0 && parsedMinutes > 0) ? calcPace(parsedMinutes, dist) : '';
+
+  const splitsRaw = document.getElementById('f-splits').value || '';
+  const splitLines = splitsRaw ? splitsRaw.split('\n').filter(l => l.trim() !== '').length : 0;
+
+  const sessionType = getActiveSeg('sess-type-group');
+  let rwData = null;
+  if (sessionType === 'Run/Walk') {
+    const rwPlanned = getActiveSeg('rw-planned-group');
+    rwData = {
+      jogInterval: document.getElementById('rw-jog').value || '',
+      walkInterval: document.getElementById('rw-walk').value || '',
+      repeats: document.getElementById('rw-repeats').value || '',
+      completedAsPlanned: rwPlanned,
+      modifiedNote: rwPlanned === 'Modified' ? (document.getElementById('rw-modified-note').value || '') : '',
+    };
+  }
+
+  // Use the human-readable date string of the target date
+  const dateStr = targetDate.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+
+  const session = {
+    id: now.toISOString(),
+    date: dateStr,
+    dateISO: targetISO,
+    status: selectedStatus || 'none',
+    plannedWorkout,
+    week: currentWeek,
+    phase: 'Foundation & Rebuild',
+    distance: distVal,
+    time: timeVal,
+    avgPace,
+    splitsRaw,
+    splitLineCount: splitLines,
+    hip: document.getElementById('f-hip').value,
+    pelvicFloor: selectedPF || 'Not recorded',
+    energy: document.getElementById('f-energy').value,
+    sleep: document.getElementById('f-sleep').value,
+    mood: document.getElementById('f-mood').value,
+    soreness: document.getElementById('f-soreness').value || '',
+    hydration: document.getElementById('c-hydration').classList.contains('checked'),
+    protein: document.getElementById('c-protein').classList.contains('checked'),
+    strengthCount: strengthCompleted.length,
+    strengthCompleted: strengthCompleted.map(e => e.name),
+    strengthNotes,
+    guidanceLevel: getGuidanceLevel(),
+    modified: selectedStatus === 'modified',
+    notes: document.getElementById('f-notes').value || '',
+    sessionType,
+    sessionLocation: getActiveSeg('sess-loc-group'),
+    stroller: getActiveSeg('sess-stroller-group'),
+    avgHR: document.getElementById('sd-hr').value || '',
+    effort: document.getElementById('sd-effort').value,
+    treadmillIncline: document.getElementById('sd-incline').value || '',
+    treadmillSpeed: document.getElementById('sd-speed').value || '',
+    contextTags: getActiveCtxTags(),
+    runWalkData: rwData,
+    todaysWin: getActiveSeg('win-group'),
+    womensHealth: getWomensHealthFromForm(),
+  };
+
+  const existingEntry = findDayEntry(targetISO);
+
+  if (existingEntry) {
+    // Day already has at least one session — ask to add or replace
+    // (Uses custom inline dialog — no native confirm/alert)
+    hsChooseAddOrReplace(
+      `A session already exists for ${dateStr}.\n\nWhat would you like to do?`,
+      'Add Another Session',
+      'Replace Existing',
+      function addSession() {
+        // Migrate old single-session entry to multi-session if needed
+        if (!Array.isArray(existingEntry.sessions)) {
+          const oldSession = Object.assign({}, existingEntry);
+          delete oldSession.sessions;
+          existingEntry.sessions = [oldSession];
+        }
+        existingEntry.sessions.push(session);
+        // Keep entry at top of list (newest date)
+        const idx = logs.indexOf(existingEntry);
+        if (idx > 0) { logs.splice(idx, 1); logs.unshift(existingEntry); }
+        persistAndRefresh();
+      },
+      function replaceSession() {
+        const idx = logs.indexOf(existingEntry);
+        const newEntry = { dateISO: targetISO, sessions: [session] };
+        if (idx !== -1) { logs[idx] = newEntry; }
+        else { logs.unshift(newEntry); }
+        persistAndRefresh();
+      }
+    );
+  } else {
+    // New date — store as multi-session wrapper immediately
+    logs.unshift({ dateISO: targetISO, sessions: [session] });
+    persistAndRefresh();
+  }
+}
+
+function persistAndRefresh() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(logs));
+  localStorage.removeItem(DRAFT_KEY);
+  showSaveSuccess();
+  resetForm();
+  // Reset log date back to today after save
+  const logDateInput = document.getElementById('log-date-input');
+  if (logDateInput) {
+    logDateInput.value = new Date().toISOString().split('T')[0];
+    updateLogDateUI();
+  }
+  renderHistory();
+  renderProgressTab();
+  renderMilestones();
+  checkCautionBanner();
+  renderPlanWeek();
+}
+
+function resetForm() {
+  selectedStatus = '';
+  selectedPF = '';
+  ['done','modified','skipped','rest'].forEach(s => document.getElementById('sb-' + s).className = 'status-btn');
+  document.querySelectorAll('#pf-pills .pill-opt').forEach(p => p.classList.remove('selected'));
+  ['f-distance','f-notes','f-soreness'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('f-time').value = '';
+  document.getElementById('f-splits').value = '';
+  document.getElementById('pace-display').style.display = 'none';
+  document.getElementById('split-count').style.display = 'none';
+  document.getElementById('split-count').textContent = '';
+  ['rw-jog','rw-walk','rw-repeats','rw-modified-note'].forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.querySelectorAll('#rw-planned-group .seg-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('rw-modified-field').style.display = 'none';
+  document.getElementById('runwalk-fields').style.display = 'none';
+  ['sd-hr','sd-incline','sd-speed'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('sd-effort').value = 5;
+  document.getElementById('v-effort').textContent = '5';
+  ['sess-type-group','sess-loc-group','sess-stroller-group'].forEach(g => {
+    document.querySelectorAll('#' + g + ' .seg-btn').forEach(b => b.classList.remove('active'));
+  });
+  document.querySelectorAll('#ctx-tags-group .ctx-tag').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('#win-group .seg-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('treadmill-fields').classList.remove('visible');
+  ['f-hip','f-energy','f-sleep','f-mood'].forEach(id => {
+    document.getElementById(id).value = id === 'f-hip' ? 0 : 5;
+  });
+  ['v-hip','v-energy','v-sleep','v-mood'].forEach((id, i) =>
+    document.getElementById(id).textContent = ['0','5','5','5'][i]
+  );
+  ['c-hydration','c-protein'].forEach(id => {
+    const el = document.getElementById(id);
+    el.classList.remove('checked');
+    el.textContent = '';
+  });
+  EXERCISES.forEach(ex => {
+    const cb = document.getElementById('ex-' + ex.id);
+    if (cb) { cb.classList.remove('checked'); cb.textContent = ''; }
+    const inp = document.getElementById('exnote-' + ex.id);
+    if (inp) inp.value = '';
+  });
+  resetWomensHealthForm();
+  updateGuidance();
+}
+
+// ─── HISTORY ───────────────────────────────────────────────
+function safeNum(v, fallback) {
+  const n = parseFloat(v);
+  return isNaN(n) ? fallback : n;
+}
+function safeMins(v) {
+  const m = parseTimeToMinutes(v);
+  return isNaN(m) ? 0 : m;
+}
+function safeStr(v, fallback) {
+  return (v !== undefined && v !== null && v !== '') ? String(v) : (fallback || '');
+}
+function safePace(minutes, miles) {
+  if (!miles || !minutes || miles <= 0 || minutes <= 0) return '';
+  return calcPace(minutes, miles);
+}
+
+function renderSessionCard(log, sessionNum, totalInDay) {
+  const guidanceText = { green: '🟢 Green light', yellow: '💛 Easy session', red: '⚠️ Recovery' };
+  const dist = safeStr(log.distance);
+  const timeStr = safeStr(log.time);
+  const pace = escapeHTML(safeStr(log.avgPace) || safePace(safeMins(log.time), safeNum(log.distance, 0)));
+  const hip = safeNum(log.hip, null);
+  const pf = escapeHTML(safeStr(log.pelvicFloor));
+  const effort = safeNum(log.effort, null);
+  const hr = escapeHTML(safeStr(log.avgHR));
+  const tags = Array.isArray(log.contextTags) ? log.contextTags.filter(Boolean) : [];
+
+  const moveParts = [
+    dist ? `${escapeHTML(dist)} mi` : '',
+    timeStr ? escapeHTML(timeStr) : '',
+    pace ? `@ ${pace}` : '',
+  ].filter(Boolean);
+
+  const painParts = [
+    hip !== null ? `Hip ${hip}/10` : '',
+    pf && pf !== 'Not recorded' ? `PF: ${pf}` : '',
+  ].filter(Boolean);
+
+  const effortParts = [
+    effort !== null ? `Effort ${effort}/10` : '',
+    hr ? `HR ${hr} bpm` : '',
+  ].filter(Boolean);
+
+  let rwLine = '';
+  if (log.runWalkData) {
+    const rw = log.runWalkData;
+    const parts = [
+      rw.jogInterval ? `Jog ${escapeHTML(rw.jogInterval)}` : '',
+      rw.walkInterval ? `Walk ${escapeHTML(rw.walkInterval)}` : '',
+      rw.repeats ? `×${escapeHTML(rw.repeats)}` : '',
+      rw.completedAsPlanned ? `· ${escapeHTML(rw.completedAsPlanned)}` : '',
+    ].filter(Boolean);
+    if (parts.length) {
+      const modNote = rw.completedAsPlanned === 'Modified' && rw.modifiedNote
+        ? ` — ${escapeHTML(rw.modifiedNote.slice(0,60))}${rw.modifiedNote.length>60?'…':''}`
+        : '';
+      rwLine = `<div class="hc-line">🏃‍♀️ ${parts.join(' ')}${modNote}</div>`;
+    }
+  }
+
+  const typeLabel = log.sessionType
+    ? `${escapeHTML(log.sessionType)}${log.sessionLocation ? ' · ' + escapeHTML(log.sessionLocation) : ''}${log.stroller === 'Yes' ? ' · 🚼' : ''}`
+    : escapeHTML(safeStr(log.plannedWorkout));
+
+  const notesText = log.notes ? escapeHTML(log.notes.slice(0,120)) + (log.notes.length > 120 ? '…' : '') : '';
+  const splitsPreview = log.splits ? escapeHTML(log.splits.slice(0,80)) + (log.splits.length > 80 ? '…' : '') : '';
+
+  const sessionLabel = totalInDay > 1
+    ? `<div class="hc-session-num">Session ${sessionNum} of ${totalInDay}</div>`
+    : '';
+
+  return `
+  <div class="history-card">
+    <div class="hc-bar ${escapeHTML(log.status || '')}"></div>
+    ${sessionLabel}
+    <div class="hc-top">
+      <span class="hc-date">${escapeHTML(safeStr(log.date))}${log.week ? ` · Wk${escapeHTML(String(log.week))}` : ''}</span>
+      <span class="hc-status ${escapeHTML(log.status || 'rest')}">${escapeHTML(safeStr(log.status, '—'))}</span>
+    </div>
+    ${typeLabel ? `<div class="hc-session-type">${typeLabel}</div>` : ''}
+    ${moveParts.length ? `<div class="hc-line">${moveParts.join(' · ')}</div>` : ''}
+    ${painParts.length ? `<div class="hc-line">${painParts.join(' · ')}</div>` : ''}
+    ${effortParts.length ? `<div class="hc-line">${effortParts.join(' · ')}</div>` : ''}
+    ${rwLine}
+    ${tags.length ? `<div class="hc-tags">${tags.map(t => `<span class="hc-tag">${escapeHTML(t)}</span>`).join('')}</div>` : ''}
+    ${log.guidanceLevel && guidanceText[log.guidanceLevel] ? `<div class="hc-guidance ${escapeHTML(log.guidanceLevel)}">${guidanceText[log.guidanceLevel]}</div>` : ''}
+    ${log.todaysWin ? `<div class="hc-line">🏆 <strong>${escapeHTML(log.todaysWin)}</strong></div>` : ''}
+    ${notesText ? `<div class="hc-notes">${notesText}</div>` : ''}
+    ${splitsPreview ? `<div class="hc-notes" style="font-style:normal;">${splitsPreview}</div>` : ''}
+    ${formatWomensHealthLine(log) ? `<div class="hc-line" style="color:var(--lavender);">${formatWomensHealthLine(log)}</div>` : ''}
+  </div>`;
+}
+
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  if (!logs.length) {
+    container.innerHTML = '<div class="empty-state"><span class="empty-state-icon">🌿</span>Your consistency story starts here.</div>';
+    return;
+  }
+
+  let html = '';
+  logs.forEach(entry => {
+    // Normalize: old single-session entries vs new multi-session wrappers
+    const sessions = Array.isArray(entry.sessions)
+      ? entry.sessions
+      : [entry]; // old shape — treat the whole entry as a single session
+
+    const total = sessions.length;
+
+    if (total > 1) {
+      // Show a date group header before multiple sessions
+      html += `<div class="history-date-group">📅 ${escapeHTML(safeStr(sessions[0].date || entry.dateISO))}</div>`;
+    }
+
+    sessions.forEach((s, idx) => {
+      html += renderSessionCard(s, idx + 1, total);
+    });
+  });
+
+  container.innerHTML = html;
+}
+
+// ─── COACH CARD & REMINDERS ────────────────────────────────
+function renderCoachCard() {
+  const card = document.getElementById('coach-note-card');
+  if (!coachState.coachNote) { card.style.display = 'none'; return; }
+  card.style.display = 'block';
+  document.getElementById('coach-note-text').textContent = coachState.coachNote;
+  const pp = document.getElementById('coach-phase-pill');
+  pp.textContent = (coachState.phaseStatus || '').replace('_', ' ');
+  pp.className = 'coach-pill ' + (coachState.phaseStatus || '');
+  document.getElementById('coach-focus-pill').textContent = coachState.weeklyFocus || '';
+  document.getElementById('coach-updated').textContent = coachState.lastUpdated
+    ? 'Updated ' + new Date(coachState.lastUpdated).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+    : '';
+}
+
+function renderReminders() {
+  const defaults = [
+    'Log how your body feels before and after each session.',
+    'Track pelvic floor symptoms honestly — they guide your plan.',
+    'Modify or skip if hip pain is above 3/10.',
+  ];
+  const items = (coachState.reminders && coachState.reminders.length) ? coachState.reminders : defaults;
+  document.getElementById('reminders-list').innerHTML = items.map(r => `<li>${escapeHTML(r)}</li>`).join('');
+}
+
+function checkCautionBanner() {
+  const recent = flattenLogs(logs).slice(0, 7);
+  const flag = recent.some(l => parseInt(l.hip) >= 4 || l.pelvicFloor === 'Worse');
+  document.getElementById('caution-banner').style.display = flag ? 'block' : 'none';
+}
+
+// ─── PROGRESS TAB ──────────────────────────────────────────
+function getWeekLogs() {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  monday.setHours(0,0,0,0);
+  return flattenLogs(logs).filter(l => {
+    if (!l.dateISO) return false;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    return d >= monday && d <= now;
+  });
+}
+
+// For consistency: how many distinct dates this week had active sessions
+function getWeekActiveDates() {
+  const now = new Date();
+  const day = now.getDay();
+  const monday = new Date(now);
+  monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+  monday.setHours(0,0,0,0);
+  const activeDates = new Set();
+  flattenLogs(logs).forEach(l => {
+    if (!l.dateISO) return;
+    const d = new Date(l.dateISO + 'T00:00:00');
+    if (d >= monday && d <= now && (l.status === 'done' || l.status === 'modified')) {
+      activeDates.add(l.dateISO);
+    }
+  });
+  return activeDates.size;
+}
+
+function statRow(label, value, sub) {
+  return `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--cream-dark);">
+    <span style="font-size:13px;color:var(--text-mid);">${escapeHTML(label)}</span>
+    <span style="font-size:15px;font-weight:500;color:var(--text);">${escapeHTML(String(value))}${sub ? `<span style="font-size:11px;color:var(--text-soft);font-weight:400;margin-left:4px;">${escapeHTML(sub)}</span>` : ''}</span>
+  </div>`;
+}
+
+function progressBar(pct, color) {
+  const c = color || 'var(--sage)';
+  return `<div style="background:var(--cream-dark);border-radius:4px;height:7px;margin:8px 0 14px;overflow:hidden;">
+    <div style="height:100%;width:${Math.min(100,Math.round(pct))}%;background:${c};border-radius:4px;transition:width 0.4s;"></div>
+  </div>`;
+}
+
+function renderProgressTab() {
+  const flat = flattenLogs(logs); // all sessions flattened, old+new
+  const week7 = flat.slice(0, 7);
+  const weekLogs = getWeekLogs(); // flat sessions this calendar week
+  const allActive = flat.filter(l => l.status === 'done' || l.status === 'modified');
+  const allRest   = flat.filter(l => l.status === 'rest');
+
+  const stableDays = week7.filter(l => parseInt(l.hip||0) <= 3 && (l.pelvicFloor === 'None' || l.pelvicFloor === 'Mild')).length;
+  const pfWorse7 = week7.filter(l => l.pelvicFloor === 'Worse').length;
+  const avgHip7 = week7.length ? week7.reduce((s,l) => s + safeNum(l.hip, 0), 0) / week7.length : 0;
+  const strengthCount7 = week7.filter(l => (l.strengthCount||0) > 0).length;
+  const active7 = week7.filter(l => l.status === 'done' || l.status === 'modified').length;
+
+  let msg = 'Small steady deposits become endurance.';
+  if (active7 === 0)           msg = 'Starting again still counts. Every log is progress.';
+  else if (avgHip7 > 3 || pfWorse7 >= 2) msg = 'Repeating a week is smart training. Recovery is the work.';
+  else if (stableDays >= 3)    msg = 'Your base is building. Stable days are the foundation.';
+  else if (strengthCount7 >= 2) msg = 'Strength work is part of the marathon. Core is your engine.';
+  else if (active7 >= 4)       msg = 'Four sessions this week. Consistency is compounding.';
+  document.getElementById('encourage-msg').textContent = msg;
+
+  // ─── Phase 9A.2: Lifetime Stats card ───
+  const lifetime = getLifetimeStats();
+  const lifetimeHTML = !lifetime.hasData
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🌱</span>Your lifetime stats will grow with every logged session.</div>'
+    : statRow('Total miles completed', lifetime.totalMiles > 0 ? lifetime.totalMiles.toFixed(2) + ' mi' : '—') +
+      statRow('Total sessions completed', lifetime.totalSessions) +
+      statRow('Total minutes trained', lifetime.totalMinutes > 0 ? Math.round(lifetime.totalMinutes) + ' min' : '—') +
+      statRow('Longest walk', lifetime.longestWalk > 0 ? lifetime.longestWalk.toFixed(2) + ' mi' : '—') +
+      statRow('Longest session', lifetime.longestSession > 0 ? Math.round(lifetime.longestSession) + ' min' : '—') +
+      `<div style="font-size:12px;color:var(--text-soft);font-style:italic;padding:8px 0 0;">Every logged session is proof the habit is building.</div>`;
+  document.getElementById('lifetime-stats').innerHTML = lifetimeHTML;
+
+  // ─── Phase 9A.2: Consistency Streaks card ───
+  const streaks = getStreakStats();
+  const currentStreakSub = streaks.current === 1 ? 'day' : 'days';
+  let streakCopy;
+  if (streaks.current === 0) streakCopy = 'Ready for the next fresh start.';
+  else if (streaks.current === 1) streakCopy = 'One day is how every streak starts.';
+  else if (streaks.current >= 2 && streaks.current <= 6) streakCopy = 'Momentum is building.';
+  else streakCopy = 'That is real consistency.';
+  const streakHTML =
+    statRow('Current streak', streaks.current, currentStreakSub) +
+    statRow('Best streak', streaks.best, streaks.best === 1 ? 'day' : 'days') +
+    `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:8px 0 2px;">${escapeHTML(streakCopy)}</div>`;
+  document.getElementById('streak-stats').innerHTML = streakHTML;
+
+  // ─── Phase 9A.4: Journey Timeline card ───
+  const journey = getJourneyTimeline(flat);
+  const journeyHTML = !journey.length
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🌱</span>Your journey begins with a single step.</div>'
+    : journey.map(ev => {
+        const d = new Date(ev.dateISO + 'T00:00:00');
+        const dateStr = isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
+        return `<div style="display:flex;justify-content:space-between;align-items:baseline;padding:8px 0;border-bottom:1px solid var(--cream-dark);">
+          <span style="font-size:13px;color:var(--text-mid);">${ev.icon} ${escapeHTML(ev.title)}</span>
+          <span style="font-size:12px;color:var(--text-soft);font-weight:400;">${escapeHTML(dateStr)}</span>
+        </div>`;
+      }).join('');
+  document.getElementById('journey-timeline').innerHTML = journeyHTML;
+
+  // ─── Phase 9A.5: Foundation Score card ───
+  const fs = getFoundationScore();
+  const foundationHTML = !fs.hasData
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🌱</span>Your foundation starts with the first saved session.</div>'
+    : `<div style="text-align:center;padding:6px 0 4px;">
+        <div style="font-size:42px;font-weight:600;color:var(--text);line-height:1.1;font-family:'Playfair Display',serif;">${fs.score}</div>
+        <div style="font-size:13px;color:var(--rose);font-weight:500;letter-spacing:0.5px;margin-top:2px;">${escapeHTML(fs.label)}</div>
+      </div>
+      <div style="font-size:12px;color:var(--text-soft);font-style:italic;text-align:center;padding:6px 0 12px;line-height:1.5;">This score reflects consistency habits, not athletic ability.</div>` +
+      statRow('Recent consistency', `${fs.recentConsistency} / 14`, 'active days') +
+      statRow('Strength support', `${fs.strengthSessions14} / 14`, 'sessions') +
+      statRow('Recovery balance', `${fs.recoveryDays14} / 14`, 'recovery days') +
+      statRow('Body stability', fs.stableSessions, 'stable sessions') +
+      `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:8px 0 2px;">${escapeHTML(fs.interpretation)}</div>`;
+  document.getElementById('foundation-score').innerHTML = foundationHTML;
+
+  // ─── Phase 9A.6: Year To Date card ───
+  const ytd = getYearToDateStats(flat);
+  let ytdMsg;
+  if (ytd.sessions === 0) ytdMsg = 'The journey starts with the first step.';
+  else if (ytd.sessions <= 9) ytdMsg = 'Early progress still counts.';
+  else if (ytd.sessions <= 24) ytdMsg = 'The foundation is growing.';
+  else if (ytd.sessions <= 49) ytdMsg = 'Consistency is taking shape.';
+  else ytdMsg = 'That is a lot of work to be proud of.';
+  const ytdHTML = !ytd.hasData
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🌱</span>This year\'s story starts with the first saved session.</div>'
+    : statRow('Miles completed', ytd.miles > 0 ? ytd.miles.toFixed(2) + ' mi' : '—') +
+      statRow('Sessions completed', ytd.sessions) +
+      statRow('Minutes trained', ytd.minutes > 0 ? Math.round(ytd.minutes) + ' min' : '—') +
+      statRow('Active days', ytd.activeDays) +
+      `<div style="font-size:12px;color:var(--text-soft);font-style:italic;padding:8px 0 0;">This year is being built one session at a time.</div>` +
+      `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:6px 0 2px;">${escapeHTML(ytdMsg)}</div>`;
+  document.getElementById('year-to-date').innerHTML = ytdHTML;
+
+
+  // ─── Next Achievement Preview ───
+  renderNextAchievement(flat);
+
+  // ─── Phase 9A.3: Personal Records card ───
+  const pr = getPersonalRecords(flat);
+  const prHTML = !pr.hasData
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🏆</span>Your personal records will appear here as you log sessions.</div>'
+    : statRow('Longest distance', pr.longestDistance > 0 ? pr.longestDistance.toFixed(2) + ' mi' : '—') +
+      statRow('Longest session time', pr.longestSessionTime > 0 ? Math.round(pr.longestSessionTime) + ' min' : '—') +
+      statRow('Fastest recorded pace', pr.fastestPaceStr || '—') +
+      statRow('Most distance in a week', pr.bestWeekDistance > 0 ? pr.bestWeekDistance.toFixed(2) + ' mi' : '—') +
+      statRow('Most active days in a week', pr.bestWeekActiveDays > 0 ? pr.bestWeekActiveDays : '—');
+  document.getElementById('personal-records').innerHTML = prHTML;
+
+  // ─── Phase 9A.3: This Month card ───
+  const ms = getMonthlyStats(flat);
+  const recapNote = MONTHLY_RECAP_NOTES[Math.floor(Math.random() * MONTHLY_RECAP_NOTES.length)];
+  const monthlyHTML = !ms.hasData
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">📆</span>This month is just getting started.</div>' +
+      `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:8px 0 2px;">${escapeHTML(recapNote)}</div>`
+    : statRow('Miles this month', ms.miles > 0 ? ms.miles.toFixed(2) + ' mi' : '—') +
+      statRow('Sessions this month', ms.sessions) +
+      statRow('Minutes this month', ms.minutes > 0 ? Math.round(ms.minutes) + ' min' : '—') +
+      statRow('Active days this month', ms.activeDays) +
+      `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:8px 0 2px;">${escapeHTML(recapNote)}</div>`;
+  document.getElementById('monthly-recap').innerHTML = monthlyHTML;
+
+  // ─── Phase 9A.6: Monthly History card ───
+  const monthlyHistory = getMonthlyHistory(6);
+  const monthlyHistoryHTML = !monthlyHistory.length
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">📅</span>Monthly history will appear after the first saved session.</div>'
+    : monthlyHistory.map(m => statRow(
+        m.label,
+        `${m.sessions} session${m.sessions !== 1 ? 's' : ''}`,
+        `${m.miles.toFixed(1)} mi · ${m.activeDays} active day${m.activeDays !== 1 ? 's' : ''}`
+      )).join('') +
+      `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:8px 0 2px;">Progress becomes easier to see when you zoom out.</div>`;
+  document.getElementById('monthly-history').innerHTML = monthlyHistoryHTML;
+
+
+  // Consistency: count distinct active dates this week (not sessions, to avoid inflation)
+  const activeDatesThisWeek = getWeekActiveDates();
+  const rest7 = weekLogs.filter(l => l.status === 'rest').length;
+  const cLine = activeDatesThisWeek >= 4 ? 'Strong consistency this week.' : activeDatesThisWeek >= 2 ? 'Solid week in progress.' : activeDatesThisWeek === 1 ? 'One day logged — that\'s a start.' : 'A new week begins.';
+  const consistencyHTML = activeDatesThisWeek === 0 && rest7 === 0 && allActive.length === 0
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">📅</span>Progress appears one supportive choice at a time.</div>'
+    : statRow('Active days this week', activeDatesThisWeek) +
+      statRow('Rest/recovery days honored', rest7) +
+      statRow('All-time active sessions', allActive.length) +
+      `<div style="font-size:13px;color:var(--rose);font-style:italic;padding:8px 0 2px;">${activeDatesThisWeek} active day${activeDatesThisWeek !== 1 ? 's' : ''} this week. ${escapeHTML(cLine)}</div>`;
+  document.getElementById('consistency-stats').innerHTML = consistencyHTML;
+
+  const allDists = flat.map(l => safeNum(l.distance, 0)).filter(v => v > 0);
+  const allTimes = flat.map(l => safeMins(l.time)).filter(v => v > 0);
+  const longestDist = allDists.length ? Math.max(...allDists) : 0;
+  const longestTime = allTimes.length ? Math.max(...allTimes) : 0;
+  const dist7 = weekLogs.reduce((s,l) => s + safeNum(l.distance,0), 0);
+  const mins7 = weekLogs.reduce((s,l) => s + safeMins(l.time), 0);
+  const enduranceHTML = flat.length === 0
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🏃‍♀️</span>Progress appears one supportive choice at a time.</div>'
+    : statRow('Longest distance (all time)', longestDist > 0 ? longestDist.toFixed(2) + ' mi' : '—') +
+      statRow('Longest session (all time)', longestTime > 0 ? Math.round(longestTime) + ' min' : '—') +
+      statRow('Distance this week', dist7 > 0 ? dist7.toFixed(2) + ' mi' : '—') +
+      statRow('Minutes this week', mins7 > 0 ? Math.round(mins7) + ' min' : '—');
+  document.getElementById('endurance-stats').innerHTML = enduranceHTML;
+
+  const avgHipVal = week7.length ? (week7.reduce((s,l) => s + safeNum(l.hip,0), 0) / week7.length) : null;
+  const avgHipStr = avgHipVal !== null ? avgHipVal.toFixed(1) + '/10' : '—';
+  const pfCaution7 = week7.filter(l => l.pelvicFloor === 'Worse' || (Array.isArray(l.contextTags) && l.contextTags.includes('pelvic floor caution'))).length;
+  const stableBody7 = week7.filter(l => parseInt(l.hip||0) <= 3 && (l.pelvicFloor === 'None' || l.pelvicFloor === 'Mild')).length;
+  const stablePct = week7.length ? (stableBody7 / week7.length) * 100 : 0;
+  document.getElementById('body-stats').innerHTML =
+    statRow('Avg hip pain', avgHipStr) +
+    statRow('PF caution/worse days', pfCaution7) +
+    statRow('Stable-body days', stableBody7, '(hip ≤3, PF mild/none)') +
+    progressBar(stablePct, stableBody7 >= 3 ? 'var(--sage)' : 'var(--rose-light)');
+
+  // ─── Women's Health Context (v10.0) ───
+  const whStats = getWomensHealthStats(flat);
+  const whHTML = !whStats.hasData
+    ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🌙</span>Women&#39;s health context will appear after a few saved entries.</div>'
+    : (whStats.topPhase ? statRow('Most common cycle phase', whStats.topPhase) : '') +
+      statRow('Sessions with symptoms logged', whStats.sessionsWithSymptoms) +
+      (whStats.topSymptom ? statRow('Most common symptom', whStats.topSymptom) : '') +
+      (Object.keys(whStats.avgEnergyByPhase).length
+        ? Object.entries(whStats.avgEnergyByPhase).map(([phase, avg]) => statRow(`Avg energy — ${phase}`, `${avg}/10`)).join('')
+        : '');
+  document.getElementById('womens-health-stats').innerHTML = whHTML;
+
+  const strengthWeek = weekLogs.filter(l => (l.strengthCount||0) > 0);
+  const allExCounts = {};
+  flat.forEach(l => (l.strengthCompleted||[]).forEach(e => { allExCounts[e] = (allExCounts[e]||0) + 1; }));
+  const topEx = Object.entries(allExCounts).sort((a,b) => b[1]-a[1])[0];
+  const totalExWeek = strengthWeek.reduce((s,l) => s + (l.strengthCount||0), 0);
+  document.getElementById('strength-stats').innerHTML =
+    statRow('Strength sessions this week', strengthWeek.length) +
+    statRow('Total exercises this week', totalExWeek) +
+    (topEx ? statRow('Most completed exercise', topEx[0]) : '');
+}
+
+// ─── SYNC — EXPORT ─────────────────────────────────────────
+function buildExport() {
+  const range = document.getElementById('export-range').value;
+  const flat = flattenLogs(logs);
+  let recentLogs = [];
+  if (range === 'program') {
+    recentLogs = [];
+  } else if (range === 'program14') {
+    recentLogs = flat.slice(0, 14);
+  } else if (range === '7') {
+    recentLogs = flat.slice(0, 7);
+  } else if (range === '14') {
+    recentLogs = flat.slice(0, 14);
+  } else if (range === '30') {
+    recentLogs = flat.slice(0, 30);
+  } else {
+    recentLogs = flat;
+  }
+
+  const painLogs = flat.slice(0, 14);
+  const avgHipRaw = painLogs.length
+    ? painLogs.reduce((s, l) => s + safeNum(l.hip, 0), 0) / painLogs.length
+    : null;
+  const avgHip = avgHipRaw !== null ? avgHipRaw.toFixed(1) : 'N/A';
+  const pfWorse = painLogs.filter(l => l.pelvicFloor === 'Worse').length;
+  const pfNone  = painLogs.filter(l => l.pelvicFloor === 'None').length;
+  const doneDays = flat.filter(l => l.status === 'done' || l.status === 'modified').length;
+  const strengthSessions = flat.filter(l => (l.strengthCount || 0) > 0).length;
+
+  const tl = recentLogs;
+  const totalDistMi = tl.reduce((s, l) => s + safeNum(l.distance, 0), 0);
+  const totalMins   = tl.reduce((s, l) => s + safeMins(l.time), 0);
+  const walkSessions    = tl.filter(l => l.sessionType === 'Walk').length;
+  const runWalkSessions = tl.filter(l => l.sessionType === 'Run/Walk').length;
+  const strengthCount   = tl.filter(l => l.sessionType === 'Strength' || (l.strengthCount||0) > 0).length;
+  const restDays        = tl.filter(l => l.status === 'rest').length;
+
+  const effortVals = tl.map(l => safeNum(l.effort, null)).filter(v => v !== null);
+  const avgEffort = effortVals.length ? (effortVals.reduce((a,b) => a+b, 0) / effortVals.length).toFixed(1) : 'N/A';
+
+  const hipVals = tl.map(l => safeNum(l.hip, null)).filter(v => v !== null);
+  const avgHipRange = hipVals.length ? (hipVals.reduce((a,b) => a+b, 0) / hipVals.length).toFixed(1) : 'N/A';
+
+  const pfCaution   = tl.filter(l => Array.isArray(l.contextTags) && l.contextTags.includes('pelvic floor caution')).length;
+  const pfWorseRange = tl.filter(l => l.pelvicFloor === 'Worse').length;
+  const pfCautionOrWorse = pfCaution + pfWorseRange;
+
+  const shortened   = tl.filter(l => Array.isArray(l.contextTags) && l.contextTags.includes('shortened intentionally')).length;
+  const stroller    = tl.filter(l => l.stroller === 'Yes').length;
+
+  const timeValues = tl.map(l => safeMins(l.time)).filter(v => v > 0);
+  const longestMins = timeValues.length ? Math.max(...timeValues) : 0;
+  const longestMinsDisplay = longestMins > 0 ? `${Math.round(longestMins)} min` : 'N/A';
+
+  const distValues = tl.map(l => safeNum(l.distance, 0)).filter(v => v > 0);
+  const longestDist = distValues.length ? Math.max(...distValues) : 0;
+  const longestDistDisplay = longestDist > 0 ? `${longestDist} mi` : 'N/A';
+
+  const milestoneStatus = Array.isArray(MILESTONES) ? MILESTONES.map(m => {
+    if (!m || typeof m.check !== 'function') return '';
+    let earned = false;
+    try { earned = !!m.check(flat); } catch (e) { earned = false; }
+    return `  ${m.label || 'Unknown'}: ${earned ? 'EARNED' : 'not yet'}`;
+  }).filter(Boolean).join('\n') : '';
+  const hsLifetime = getLifetimeStats();
+  const hsStreaks = getStreakStats();
+  const hsPersonalRecords = getPersonalRecords(flat);
+  const hsMonthly = getMonthlyStats(flat);
+  const hsJourney = getJourneyTimeline(flat);
+  const hsFoundation = getFoundationScore();
+  const hsYTD = getYearToDateStats(flat);
+
+  const weekLogs = (() => {
+    const now = new Date();
+    const day = now.getDay();
+    const monday = new Date(now);
+    monday.setDate(now.getDate() - (day === 0 ? 6 : day - 1));
+    monday.setHours(0,0,0,0);
+    return flat.filter(l => { if (!l.dateISO) return false; const d = new Date(l.dateISO + 'T00:00:00'); return d >= monday && d <= now; });
+  })();
+  const stableDaysExport = flat.slice(0,7).filter(l => parseInt(l.hip||0) <= 3 && (l.pelvicFloor === 'None' || l.pelvicFloor === 'Mild')).length;
+  const activeWeekExport = weekLogs.filter(l => l.status === 'done' || l.status === 'modified').length;
+  const recentWins = flat.slice(0,7).map(l => l.todaysWin).filter(Boolean);
+  const whExportStats = getWomensHealthStats(flat);
+  const whRecentEntries = flat.filter(l => l.womensHealth && typeof l.womensHealth === 'object' &&
+    (safeStr(l.womensHealth.cyclePhase) || safeStr(l.womensHealth.cycleDay) ||
+     (Array.isArray(l.womensHealth.symptoms) && l.womensHealth.symptoms.length) ||
+     safeStr(l.womensHealth.notes) || safeStr(l.womensHealth.weight))
+  ).slice(0,7);
+
+  const lines = [
+    '=== HERSTRIDE EXPORT ===',
+    `Generated: ${new Date().toLocaleString()}`,
+    `Current Phase: Foundation & Rebuild`,
+    `Current Week: ${currentWeek}`,
+    `Total Logged Days: ${flat.length}`,
+    '',
+    '--- USER PROFILE ---',
+    '  App: HerStride | Phase: Foundation & Rebuild (Weeks 1–8)',
+    `  Active Week: ${currentWeek} of 8`,
+    '',
+    '--- TRAINING PHILOSOPHY ---',
+    '  Consistency over intensity. Pelvic floor and hip health are the priority.',
+    '  No aggressive progression when symptoms are elevated.',
+    '  Walk-based foundation. Run/walk introduced only in Weeks 5+ if symptom-free.',
+    '',
+    '--- CURRENT PLAN (WEEKS 1–8) ---',
+    ...Object.entries(PLAN).map(([w, days]) => {
+      const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+      return `  Week ${w}${parseInt(w) === currentWeek ? ' ← CURRENT' : ''}:\n` +
+        days.map((d,i) => `    ${names[i]}: ${d}`).join('\n');
+    }),
+    '',
+    '--- SESSION TRENDS ---',
+    `  Range: ${tl.length} session(s)`,
+    `  Total Walking/Running Distance: ${totalDistMi > 0 ? totalDistMi.toFixed(2) + ' mi' : 'N/A'}`,
+    `  Total Workout Minutes: ${totalMins > 0 ? Math.round(totalMins) + ' min' : 'N/A'}`,
+    `  Walk Sessions: ${walkSessions}`,
+    `  Run/Walk Sessions: ${runWalkSessions}`,
+    `  Strength Sessions: ${strengthCount}`,
+    `  Rest Days: ${restDays}`,
+    `  Avg Effort: ${avgEffort}/10`,
+    `  Avg Hip Pain: ${avgHipRange}/10`,
+    `  Sessions with PF Caution/Worse: ${pfCautionOrWorse}`,
+    `  Sessions Shortened Intentionally: ${shortened}`,
+    `  Stroller Sessions: ${stroller}`,
+    `  Longest Session Time: ${longestMinsDisplay}`,
+    `  Longest Session Distance: ${longestDistDisplay}`,
+    '',
+    '--- RECENT LOGS ---',
+    tl.length ? tl.map(l => {
+      const distStr = safeStr(l.distance);
+      const timeStr = safeStr(l.time);
+      const pace = safeStr(l.avgPace) || safePace(safeMins(l.time), safeNum(l.distance, 0));
+      const tags = Array.isArray(l.contextTags) ? l.contextTags : [];
+      const splitsRaw = safeStr(l.splitsRaw || l.splits);
+      const splitsTrunc = splitsRaw.length > 500 ? splitsRaw.slice(0, 500) + ' [truncated]' : splitsRaw;
+      const parts = [
+        `DATE: ${safeStr(l.date)} | WEEK: ${safeStr(l.week, '—')} | STATUS: ${safeStr(l.status, '—')}`,
+        `PLANNED: ${safeStr(l.plannedWorkout, '—')}`,
+        l.sessionType ? `SESSION: ${l.sessionType}${l.sessionLocation ? ' / ' + l.sessionLocation : ''}${l.stroller === 'Yes' ? ' / stroller 🚼' : ''}` : null,
+        [distStr && `DIST: ${distStr} mi`, timeStr && `TIME: ${timeStr}`, pace && `PACE: ${pace}`, l.avgHR && `HR: ${l.avgHR} bpm`].filter(Boolean).join(' | ') || null,
+        l.effort ? `EFFORT: ${l.effort}/10` : null,
+        `HIP: ${safeStr(l.hip,'—')}/10 | PF: ${safeStr(l.pelvicFloor,'—')} | ENERGY: ${safeStr(l.energy,'—')}/10 | SLEEP: ${safeStr(l.sleep,'—')}/10`,
+        l.strengthCount ? `STRENGTH: ${l.strengthCount} exercises — ${(l.strengthCompleted||[]).join(', ')}` : null,
+        l.runWalkData ? `RUN/WALK: Jog ${safeStr(l.runWalkData.jogInterval,'—')} / Walk ${safeStr(l.runWalkData.walkInterval,'—')} × ${safeStr(l.runWalkData.repeats,'—')} | Completed: ${safeStr(l.runWalkData.completedAsPlanned,'—')}${l.runWalkData.modifiedNote ? ' | Changed: ' + l.runWalkData.modifiedNote : ''}` : null,
+        tags.length ? `TAGS: ${tags.join(', ')}` : null,
+        l.splitLineCount ? `SPLITS: ${l.splitLineCount} line(s)` : null,
+        splitsTrunc ? `SPLIT NOTES: ${splitsTrunc.replace(/\n/g,' | ')}` : null,
+        l.notes ? `NOTES: ${l.notes}` : null,
+        '---',
+      ];
+      return parts.filter(Boolean).join('\n');
+    }).join('\n') : '  No logs in selected range.',
+    '',
+    '--- TRENDS (last 14 logs) ---',
+    `  Avg Hip Pain: ${avgHip}/10`,
+    `  Pelvic Floor — Worse days: ${pfWorse} | None days: ${pfNone}`,
+    `  Total Active Sessions (all time): ${doneDays}`,
+    `  Strength Sessions (all time): ${strengthSessions}`,
+    '',
+    '--- PROGRESS SUMMARY ---',
+    `  Sessions this week: ${activeWeekExport}`,
+    `  Stable-body days (last 7): ${stableDaysExport}`,
+    `  Longest distance (all time): ${longestDist > 0 ? longestDist + ' mi' : 'N/A'}`,
+    `  Longest session (all time): ${longestMinsDisplay}`,
+    `  Recent Today's Wins: ${recentWins.length ? recentWins.join(', ') : 'none logged'}`,
+    '',
+    '--- LIFETIME STATS ---',
+    `  Total Lifetime Miles: ${hsLifetime.totalMiles > 0 ? hsLifetime.totalMiles.toFixed(2) + ' mi' : 'N/A'}`,
+    `  Total Lifetime Sessions: ${hsLifetime.totalSessions}`,
+    `  Total Lifetime Training Minutes: ${hsLifetime.totalMinutes > 0 ? Math.round(hsLifetime.totalMinutes) + ' min' : 'N/A'}`,
+    `  Current Streak: ${hsStreaks.current} day(s)`,
+    `  Best Streak: ${hsStreaks.best} day(s)`,
+    `  Longest Walk: ${hsLifetime.longestWalk > 0 ? hsLifetime.longestWalk.toFixed(2) + ' mi' : 'N/A'}`,
+    `  Longest Session: ${hsLifetime.longestSession > 0 ? Math.round(hsLifetime.longestSession) + ' min' : 'N/A'}`,
+    '',
+    '--- JOURNEY TIMELINE ---',
+    hsJourney.length
+      ? hsJourney.map(ev => {
+          const d = new Date(ev.dateISO + 'T00:00:00');
+          if (isNaN(d.getTime())) return null;
+          return `  ${ev.icon} ${ev.title} — ${ev.dateISO}`;
+        }).filter(Boolean).join('\n') || '  None yet'
+      : '  None yet',
+    '',
+    '--- FOUNDATION SCORE ---',
+    hsFoundation.hasData
+      ? [
+          `  Score: ${hsFoundation.score} / 100`,
+          `  Label: ${hsFoundation.label}`,
+          `  Recent Consistency: ${hsFoundation.recentConsistency} active days in last 14 days`,
+          `  Strength Support: ${hsFoundation.strengthSessions14} strength sessions in last 14 days`,
+          `  Recovery Balance: ${hsFoundation.recoveryDays14} recovery/rest days in last 14 days`,
+          `  Body Stability: ${hsFoundation.stableSessions} stable sessions in last 14 logs`,
+          `  Total Foundation Sessions: ${hsFoundation.totalFoundationSessions} completed sessions all time`,
+        ].join('\n')
+      : '  Not enough data yet.',
+    '',
+    '--- YEAR TO DATE ---',
+    hsYTD.hasData
+      ? [
+          `  Miles Completed: ${hsYTD.miles.toFixed(2)}`,
+          `  Sessions Completed: ${hsYTD.sessions}`,
+          `  Minutes Trained: ${Math.round(hsYTD.minutes)}`,
+          `  Active Days: ${hsYTD.activeDays}`,
+        ].join('\n')
+      : '  Not enough data yet.',
+    '',
+    '--- PERSONAL RECORDS ---',
+    `  Longest Distance: ${hsPersonalRecords.longestDistance > 0 ? hsPersonalRecords.longestDistance.toFixed(2) + ' mi' : 'N/A'}`,
+    `  Longest Session Time: ${hsPersonalRecords.longestSessionTime > 0 ? Math.round(hsPersonalRecords.longestSessionTime) + ' min' : 'N/A'}`,
+    `  Fastest Recorded Pace: ${hsPersonalRecords.fastestPaceStr || 'N/A'}`,
+    `  Most Distance In A Single Week: ${hsPersonalRecords.bestWeekDistance > 0 ? hsPersonalRecords.bestWeekDistance.toFixed(2) + ' mi' : 'N/A'}`,
+    `  Most Active Days In A Single Week: ${hsPersonalRecords.bestWeekActiveDays > 0 ? hsPersonalRecords.bestWeekActiveDays : 'N/A'}`,
+    '',
+    '--- MONTHLY RECAP (current month) ---',
+    `  Miles This Month: ${hsMonthly.miles > 0 ? hsMonthly.miles.toFixed(2) + ' mi' : 'N/A'}`,
+    `  Sessions This Month: ${hsMonthly.sessions}`,
+    `  Minutes This Month: ${hsMonthly.minutes > 0 ? Math.round(hsMonthly.minutes) + ' min' : 'N/A'}`,
+    `  Active Days This Month: ${hsMonthly.activeDays}`,
+    '',
+    '--- MONTHLY HISTORY ---',
+    ...(getMonthlyHistory(6).length
+      ? getMonthlyHistory(6).map(m =>
+          `  ${m.label}: ${m.sessions} session${m.sessions !== 1 ? 's' : ''} | ${safeNum(m.miles,0).toFixed(1)} mi | ${m.activeDays} active day${m.activeDays !== 1 ? 's' : ''} | ${Math.round(safeNum(m.minutes,0))} min`)
+      : ['  Monthly History: none yet']),
+    '',
+    '--- MILESTONES ---',
+    milestoneStatus,
+    '',
+    '--- CONSISTENCY ---',
+    `  Total logs: ${flat.length}`,
+    `  Completed/Modified: ${doneDays}`,
+    `  Skipped: ${flat.filter(l=>l.status==='skipped').length}`,
+    `  Rest days: ${flat.filter(l=>l.status==='rest').length}`,
+    '',
+    '--- NOTES SUMMARY (last 5 with notes) ---',
+    flat.filter(l=>l.notes).slice(0,5).map(l => `  ${l.date}: ${l.notes}`).join('\n') || '  None',
+    '',
+    "--- WOMEN'S HEALTH CONTEXT ---",
+    whExportStats.hasData
+      ? [
+          whExportStats.topPhase ? `  Most Common Cycle Phase: ${whExportStats.topPhase}` : null,
+          `  Sessions With Symptoms Logged: ${whExportStats.sessionsWithSymptoms}`,
+          whExportStats.topSymptom ? `  Most Common Symptom: ${whExportStats.topSymptom}` : null,
+          ...Object.entries(whExportStats.avgEnergyByPhase).map(([phase, avg]) => `  Avg Energy (${phase}): ${avg}/10`),
+        ].filter(Boolean).join('\n')
+      : '  Not enough data yet.',
+    whRecentEntries.length ? '  Recent Entries:' : '',
+    ...whRecentEntries.map(l => {
+      const wh = l.womensHealth;
+      const parts = [];
+      if (safeStr(wh.cyclePhase) || safeStr(wh.cycleDay)) {
+        const cp = [safeStr(wh.cyclePhase), safeStr(wh.cycleDay) ? `Day ${safeStr(wh.cycleDay)}` : ''].filter(Boolean).join(' · ');
+        parts.push(`Cycle: ${cp}`);
+      }
+      if (Array.isArray(wh.symptoms) && wh.symptoms.length) parts.push(`Symptoms: ${wh.symptoms.join(', ')}`);
+      if (safeStr(wh.weight)) parts.push(`Weight: ${safeStr(wh.weight)} lb`);
+      if (safeStr(wh.notes)) parts.push(`Notes: ${safeStr(wh.notes)}`);
+      return `    ${l.date}: ${parts.join(' | ')}`;
+    }),
+    '',
+    '--- AI INSTRUCTIONS ---',
+    '  Return ONLY a HERSTRIDE_UPDATE block in this exact format:',
+    '  HERSTRIDE_UPDATE',
+    '  {',
+    '    "currentWeek": <number 1-8>,',
+    '    "coachNote": "<your coaching message>",',
+    '    "phaseStatus": "<continue|repeat_week|deload|progress>",',
+    '    "weeklyFocus": "<short focus string>",',
+    '    "planAdjustments": { "week": <number>, "days": { "Monday": "...", ... } },',
+    '    "reminders": ["<string>", ...],',
+    '    "milestones": ["<string>", ...]',
+    '  }',
+    '  END_HERSTRIDE_UPDATE',
+    '',
+    '  Rules:',
+    '  - Do not include medical diagnosis.',
+    '  - Do not recommend aggressive progression.',
+    '  - Prioritize consistency, recovery, pelvic floor symptoms, and hip pain.',
+    '  - If hip pain avg > 3 or PF worse days > 2, recommend repeat_week or deload.',
+    '  - Keep coaching tone warm, supportive, and non-clinical.',
+    '',
+    '=== END HERSTRIDE EXPORT ===',
+  ];
+  return lines.join('\n');
+}
+
+function exportData() {
+  document.getElementById('export-preview').value = buildExport();
+  showToast('Export ready — copy and paste to your AI!');
+}
+
+function copyExport() {
+  const text = buildExport();
+  document.getElementById('export-preview').value = text;
+  navigator.clipboard.writeText(text)
+    .then(() => showToast('Copied! Paste into ChatGPT or Claude 🌸'))
+    .catch(() => showToast('Select all text in the box and copy manually'));
+}
+
+// ─── SYNC — IMPORT ─────────────────────────────────────────
+function applyUpdate() {
+  const raw = document.getElementById('import-area').value.trim();
+  const resultEl = document.getElementById('import-result');
+  resultEl.style.display = 'none';
+
+  if (!raw) { showResult('error', 'Nothing to import — paste a HERSTRIDE_UPDATE block first.'); return; }
+
+  const match = raw.match(/HERSTRIDE_UPDATE\s*([\s\S]*?)\s*END_HERSTRIDE_UPDATE/);
+  if (!match) { showResult('error', 'No valid HERSTRIDE_UPDATE block found. Make sure to copy the full block from your AI coach.'); return; }
+
+  let data;
+  try {
+    data = JSON.parse(match[1]);
+  } catch(e) {
+    showResult('error', 'Could not parse update — the JSON inside the block may be malformed. Ask your AI to try again.'); return;
+  }
+
+  const validPhaseStatuses = ['continue','repeat_week','deload','progress'];
+
+  if (data.currentWeek !== undefined) {
+    const w = parseInt(data.currentWeek);
+    if (isNaN(w) || w < 1 || w > 8) { showResult('error', 'Invalid currentWeek — must be 1–8.'); return; }
+    currentWeek = w;
+    localStorage.setItem(WEEK_KEY, w);
+    document.getElementById('heroPill').textContent = `Week ${w} · Foundation & Rebuild`;
+    renderWeekSelector();
+    renderPlanWeek();
+    renderTodayWorkout();
+  }
+
+  if (data.coachNote !== undefined && typeof data.coachNote === 'string') {
+    coachState.coachNote = data.coachNote.slice(0, 800);
+  }
+
+  if (data.phaseStatus !== undefined) {
+    coachState.phaseStatus = validPhaseStatuses.includes(data.phaseStatus) ? data.phaseStatus : 'continue';
+  }
+
+  if (data.weeklyFocus !== undefined && typeof data.weeklyFocus === 'string') {
+    coachState.weeklyFocus = data.weeklyFocus.slice(0, 120);
+  }
+
+  if (data.reminders !== undefined && Array.isArray(data.reminders)) {
+    coachState.reminders = data.reminders.filter(r => typeof r === 'string').slice(0, 8).map(r => r.slice(0, 200));
+  }
+
+  if (data.milestones !== undefined && Array.isArray(data.milestones)) {
+    coachState.manualMilestones = data.milestones.filter(r => typeof r === 'string').slice(0, 6);
+  }
+
+  if (data.planAdjustments !== undefined) {
+    const adj = data.planAdjustments;
+    if (adj.week && adj.days && typeof adj.days === 'object') {
+      const w = parseInt(adj.week);
+      if (w >= 1 && w <= 8) {
+        const dayMap = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4, Saturday:5, Sunday:6 };
+        Object.entries(adj.days).forEach(([day, workout]) => {
+          if (dayMap[day] !== undefined && typeof workout === 'string') {
+            PLAN[w][dayMap[day]] = workout.slice(0, 120);
+          }
+        });
+
+        // Persist plan adjustments to localStorage
+        let storedAdj = {};
+        try { storedAdj = JSON.parse(localStorage.getItem(PLAN_ADJ_KEY) || '{}'); } catch(e) {}
+        storedAdj[w] = PLAN[w].slice(); // store full week array
+        localStorage.setItem(PLAN_ADJ_KEY, JSON.stringify(storedAdj));
+
+        renderPlanWeek();
+        renderTodayWorkout();
+      }
+    }
+  }
+
+  coachState.lastUpdated = new Date().toISOString();
+  localStorage.setItem(COACH_KEY, JSON.stringify(coachState));
+
+  renderCoachCard();
+  renderReminders();
+  renderMilestones();
+
+  const recent7 = flattenLogs(logs).slice(0, 7);
+  const cautionFlag = recent7.some(l => parseInt(l.hip) >= 4 || l.pelvicFloor === 'Worse');
+  if (cautionFlag && (data.phaseStatus === 'progress' || data.currentWeek > currentWeek - 1)) {
+    showResult('warning', '✅ Update applied. However: recent symptoms suggest caution. Consider repeating or modifying this week.');
+  } else {
+    showResult('success', '✅ Coaching update applied! Coach note, reminders, and week settings have been updated.');
+  }
+  document.getElementById('import-area').value = '';
+}
+
+function showResult(type, msg) {
+  const el = document.getElementById('import-result');
+  el.className = 'import-result ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+
+// ─── ONBOARDING ────────────────────────────────────────────
+function checkOnboarding() {
+  if (!localStorage.getItem(ONBOARD_KEY)) {
+    document.getElementById('onboarding-card').style.display = 'block';
+  }
+}
+
+function dismissOnboarding() {
+  localStorage.setItem(ONBOARD_KEY, '1');
+  document.getElementById('onboarding-card').style.display = 'none';
+}
+
+// ─── SAVE SUCCESS ──────────────────────────────────────────
+const SAVE_MSGS = [
+  'A small step still counts.',
+  'Consistency is being built.',
+  'Supportive training is real training.',
+  'You are building trust with your body.',
+  'Showing up counts.',
+];
+
+function showSaveSuccess() {
+  const banner = document.getElementById('save-success');
+  document.getElementById('ss-msg').textContent = SAVE_MSGS[Math.floor(Math.random() * SAVE_MSGS.length)];
+  banner.style.display = 'block';
+  banner.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  setTimeout(() => { banner.style.display = 'none'; }, 5000);
+}
+
+// ─── DRAFT AUTOSAVE ────────────────────────────────────────
+function collectDraft() {
+  const draft = {
+    v: 1,
+    status: selectedStatus,
+    pf: selectedPF,
+    hip:    document.getElementById('f-hip')?.value,
+    energy: document.getElementById('f-energy')?.value,
+    sleep:  document.getElementById('f-sleep')?.value,
+    mood:   document.getElementById('f-mood')?.value,
+    soreness: document.getElementById('f-soreness')?.value || '',
+    distance: document.getElementById('f-distance')?.value || '',
+    time:     document.getElementById('f-time')?.value || '',
+    splits:   document.getElementById('f-splits')?.value || '',
+    notes:    document.getElementById('f-notes')?.value || '',
+    hr:       document.getElementById('sd-hr')?.value || '',
+    effort:   document.getElementById('sd-effort')?.value,
+    incline:  document.getElementById('sd-incline')?.value || '',
+    speed:    document.getElementById('sd-speed')?.value || '',
+    rwJog:    document.getElementById('rw-jog')?.value || '',
+    rwWalk:   document.getElementById('rw-walk')?.value || '',
+    rwRepeats: document.getElementById('rw-repeats')?.value || '',
+    rwModNote: document.getElementById('rw-modified-note')?.value || '',
+    rwPlanned: getActiveSeg('rw-planned-group'),
+    sessType: getActiveSeg('sess-type-group'),
+    sessLoc:  getActiveSeg('sess-loc-group'),
+    sessStroller: getActiveSeg('sess-stroller-group'),
+    ctxTags: getActiveCtxTags(),
+    win: getActiveSeg('win-group'),
+    hydration: document.getElementById('c-hydration')?.classList.contains('checked'),
+    protein:   document.getElementById('c-protein')?.classList.contains('checked'),
+    strengthChecked: EXERCISES.map(ex => document.getElementById('ex-' + ex.id)?.classList.contains('checked') || false),
+    strengthNotes:   EXERCISES.map(ex => document.getElementById('exnote-' + ex.id)?.value || ''),
+    whWeight: document.getElementById('wh-weight')?.value || '',
+    whCycleDay: document.getElementById('wh-cycle-day')?.value || '',
+    whCyclePhase: getActiveSeg('wh-phase-group'),
+    whSymptoms: Array.from(document.querySelectorAll('#wh-symptoms-group .ctx-tag.active')).map(el => el.textContent),
+    whNotes: document.getElementById('wh-notes')?.value || '',
+  };
+  return draft;
+}
+
+function saveDraft() {
+  try { localStorage.setItem(DRAFT_KEY, JSON.stringify(collectDraft())); } catch(e) {}
+}
+
+function checkDraftBanner() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    JSON.parse(raw); // validate
+    document.getElementById('draft-banner').style.display = 'block';
+  } catch(e) { localStorage.removeItem(DRAFT_KEY); }
+}
+
+function restoreDraft() {
+  try {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (!raw) return;
+    const d = JSON.parse(raw);
+
+    if (d.status) selectStatus(d.status);
+
+    if (d.pf) {
+      const pfBtn = Array.from(document.querySelectorAll('#pf-pills .pill-opt')).find(b => b.textContent === d.pf);
+      if (pfBtn) selectPill(pfBtn, 'pf');
+    }
+
+    const setSlider = (id, valId, val) => {
+      const el = document.getElementById(id); if (!el) return;
+      el.value = val;
+      if (valId) document.getElementById(valId).textContent = val;
+    };
+    setSlider('f-hip','v-hip', d.hip ?? 0);
+    setSlider('f-energy','v-energy', d.energy ?? 5);
+    setSlider('f-sleep','v-sleep', d.sleep ?? 5);
+    setSlider('f-mood','v-mood', d.mood ?? 5);
+    setSlider('sd-effort','v-effort', d.effort ?? 5);
+
+    const setVal = (id, val) => { const el = document.getElementById(id); if (el) el.value = val || ''; };
+    setVal('f-soreness', d.soreness); setVal('f-distance', d.distance);
+    setVal('f-time', d.time); setVal('f-splits', d.splits);
+    setVal('f-notes', d.notes); setVal('sd-hr', d.hr);
+    setVal('sd-incline', d.incline); setVal('sd-speed', d.speed);
+    setVal('rw-jog', d.rwJog); setVal('rw-walk', d.rwWalk);
+    setVal('rw-repeats', d.rwRepeats); setVal('rw-modified-note', d.rwModNote);
+
+    const restoreSeg = (groupId, val) => {
+      if (!val) return;
+      const btn = Array.from(document.querySelectorAll('#' + groupId + ' .seg-btn')).find(b => b.textContent === val);
+      if (btn) btn.classList.add('active');
+    };
+    restoreSeg('sess-type-group', d.sessType); updateRunWalkFields();
+    restoreSeg('sess-loc-group',  d.sessLoc);  updateTreadmillFields();
+    restoreSeg('sess-stroller-group', d.sessStroller);
+    restoreSeg('rw-planned-group', d.rwPlanned); updateRwModifiedField();
+    restoreSeg('win-group', d.win);
+
+    if (Array.isArray(d.ctxTags)) {
+      document.querySelectorAll('#ctx-tags-group .ctx-tag').forEach(t => {
+        if (d.ctxTags.includes(t.textContent)) t.classList.add('active');
+      });
+    }
+
+    const restoreCheck = (id, val) => {
+      const el = document.getElementById(id); if (!el) return;
+      el.classList.toggle('checked', !!val);
+      el.textContent = val ? '✓' : '';
+    };
+    restoreCheck('c-hydration', d.hydration);
+    restoreCheck('c-protein', d.protein);
+
+    EXERCISES.forEach((ex, i) => {
+      const cb = document.getElementById('ex-' + ex.id);
+      const val = Array.isArray(d.strengthChecked) ? !!d.strengthChecked[i] : false;
+      if (cb) { cb.classList.toggle('checked', val); cb.textContent = val ? '✓' : ''; }
+      const inp = document.getElementById('exnote-' + ex.id);
+      if (inp) inp.value = (Array.isArray(d.strengthNotes) && d.strengthNotes[i]) ? d.strengthNotes[i] : '';
+    });
+
+    restoreWomensHealthDraft(d);
+
+    updateGuidance(); updatePaceDisplay(); updateSplitCount();
+  } catch(e) {}
+  document.getElementById('draft-banner').style.display = 'none';
+}
+
+function dismissDraft() {
+  localStorage.removeItem(DRAFT_KEY);
+  document.getElementById('draft-banner').style.display = 'none';
+}
+
+// Autosave draft every 25s when on Today tab
+setInterval(() => {
+  if (document.getElementById('tab-today').classList.contains('active')) saveDraft();
+}, 25000);
+
+// ─── STICKY SAVE BAR ───────────────────────────────────────
+function updateStickySaveBar(tab) {
+  const bar = document.getElementById('sticky-save-bar');
+  bar.style.display = tab === 'today' ? 'block' : 'none';
+}
+
+// ─── TOAST ─────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ─── APP TOOLS — PHASE 8A BACKUP / RESTORE ────────────────
+
+function isHerStrideKey(key) {
+  return HS_OWNED_KEYS.includes(key);
+}
+
+function getHerStrideKeys() {
+  return HS_OWNED_KEYS.filter(key => localStorage.getItem(key) !== null);
+}
+
+function hsBuildBackup() {
+  const data = {};
+  getHerStrideKeys().forEach(key => {
+    data[key] = localStorage.getItem(key); // raw strings only
+  });
+  return {
+    app: 'HerStride',
+    schemaVersion: HS_SCHEMA_VERSION,
+    appVersion: HS_APP_VERSION,
+    exportedAt: new Date().toISOString(),
+    data
+  };
+}
+
+function hsCreateBackup() {
+  const backup = hsBuildBackup();
+  const json = JSON.stringify(backup, null, 2);
+  document.getElementById('backup-area').value = json;
+  showBackupResult('success', '✅ Backup created. Copy and save this somewhere safe.');
+}
+
+function hsCopyBackup() {
+  const ta = document.getElementById('backup-area');
+  const text = ta.value.trim();
+  if (!text) {
+    showBackupResult('error', '⚠️ Create a backup first before copying.');
+    return;
+  }
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(() => showBackupResult('success', '✅ Backup copied to clipboard.'))
+      .catch(() => fallbackCopy(ta));
+  } else {
+    fallbackCopy(ta);
+  }
+}
+
+function fallbackCopy(ta) {
+  try {
+    ta.select();
+    ta.setSelectionRange(0, 999999);
+    document.execCommand('copy');
+    showBackupResult('success', '✅ Backup copied to clipboard.');
+  } catch(e) {
+    showBackupResult('error', '❌ Could not copy automatically. Please select all text and copy manually.');
+  }
+}
+
+function hsValidateBackup(raw) {
+  let parsed;
+  try { parsed = JSON.parse(raw); } catch(e) {
+    throw new Error('Invalid JSON. Make sure you pasted the complete backup.');
+  }
+  if (parsed.app !== 'HerStride') {
+    throw new Error('This does not appear to be a HerStride backup.');
+  }
+  if (!parsed.schemaVersion) {
+    throw new Error('Backup is missing schema version. It may be from an older version.');
+  }
+  if (!parsed.exportedAt) {
+    throw new Error('Backup is missing export timestamp and may be corrupted.');
+  }
+  if (!parsed.data || typeof parsed.data !== 'object') {
+    throw new Error('Backup is missing data. It may be incomplete or corrupted.');
+  }
+  const unknownKeys = Object.keys(parsed.data).filter(k => !isHerStrideKey(k));
+  if (unknownKeys.length > 0) {
+    throw new Error(`Backup contains unrecognized keys: ${unknownKeys.join(', ')}. Restore aborted for safety.`);
+  }
+  return parsed;
+}
+
+function hsMigrateBackup(backup) {
+  if (backup.schemaVersion === 1) {
+    return backup; // current version, no migration needed
+  }
+  if (backup.schemaVersion > HS_SCHEMA_VERSION) {
+    throw new Error('This backup was created by a newer version of HerStride and cannot be restored here.');
+  }
+  // Future migration hooks go here
+  return backup;
+}
+
+function hsBuildSafetyBackup() {
+  return hsBuildBackup();
+}
+
+// Inline Add-or-Replace dialog (replaces native confirm — blocked in iOS PWA)
+function hsChooseAddOrReplace(message, labelAdd, labelReplace, onAdd, onReplace) {
+  const existing = document.getElementById('hs-confirm-dialog');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'hs-confirm-dialog';
+  overlay.style.cssText = [
+    'position:fixed','inset:0','z-index:9999',
+    'background:rgba(61,53,48,0.45)',
+    'display:flex','align-items:center','justify-content:center','padding:24px'
+  ].join(';');
+
+  const box = document.createElement('div');
+  box.style.cssText = [
+    'background:#faf6f0','border-radius:16px','padding:24px 20px',
+    'max-width:340px','width:100%','box-shadow:0 8px 32px rgba(61,53,48,0.18)',
+    'font-family:\'DM Sans\',sans-serif','color:#3d3530','font-size:14px','line-height:1.6'
+  ].join(';');
+
+  const msg = document.createElement('p');
+  msg.style.cssText = 'margin:0 0 20px;white-space:pre-line;';
+  msg.textContent = message;
+
+  const btnCol = document.createElement('div');
+  btnCol.style.cssText = 'display:flex;flex-direction:column;gap:8px;';
+
+  const addBtn = document.createElement('button');
+  addBtn.textContent = '➕ ' + labelAdd;
+  addBtn.style.cssText = [
+    'background:#d4907a','border:none','border-radius:12px',
+    'padding:11px 20px','font-family:\'DM Sans\',sans-serif','font-size:13px',
+    'font-weight:500','color:#fff','cursor:pointer','text-align:left'
+  ].join(';');
+
+  const replaceBtn = document.createElement('button');
+  replaceBtn.textContent = '🔄 ' + labelReplace;
+  replaceBtn.style.cssText = [
+    'background:none','border:1.5px solid #e8e0d8','border-radius:12px',
+    'padding:11px 18px','font-family:\'DM Sans\',sans-serif','font-size:13px',
+    'color:#7a6d66','cursor:pointer','text-align:left'
+  ].join(';');
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.style.cssText = [
+    'background:none','border:none','font-family:\'DM Sans\',sans-serif',
+    'font-size:12px','color:#b0a59e','cursor:pointer','padding:4px 0','text-align:center'
+  ].join(';');
+
+  const dismiss = () => overlay.remove();
+  cancelBtn.onclick = dismiss;
+  overlay.onclick = (e) => { if (e.target === overlay) dismiss(); };
+  addBtn.onclick = () => { dismiss(); onAdd(); };
+  replaceBtn.onclick = () => { dismiss(); onReplace(); };
+
+  btnCol.appendChild(addBtn);
+  btnCol.appendChild(replaceBtn);
+  btnCol.appendChild(cancelBtn);
+  box.appendChild(msg);
+  box.appendChild(btnCol);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+// ─── LOG DATE UI ───────────────────────────────────────────
+function initLogDateInput() {
+  const input = document.getElementById('log-date-input');
+  if (!input) return;
+  const todayISO = new Date().toISOString().split('T')[0];
+  input.value = todayISO;
+  input.max = todayISO; // no future dates
+  input.addEventListener('change', updateLogDateUI);
+  updateLogDateUI();
+}
+
+function updateLogDateUI() {
+  const input = document.getElementById('log-date-input');
+  if (!input) return;
+  const todayISO = new Date().toISOString().split('T')[0];
+  const selected = input.value;
+  const isBacklog = selected && selected !== todayISO;
+  const badge = document.getElementById('log-date-badge');
+  const saveBtn = document.getElementById('sticky-save-btn-label');
+
+  if (badge) badge.style.display = isBacklog ? 'flex' : 'none';
+  if (saveBtn) saveBtn.textContent = isBacklog ? 'Save Backlogged Session' : 'Save Today';
+}
+function hsConfirm(message, onConfirm) {
+  // Remove any existing dialog
+  const existing = document.getElementById('hs-confirm-dialog');
+  if (existing) existing.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'hs-confirm-dialog';
+  overlay.style.cssText = [
+    'position:fixed','inset:0','z-index:9999',
+    'background:rgba(61,53,48,0.45)',
+    'display:flex','align-items:center','justify-content:center','padding:24px'
+  ].join(';');
+
+  const box = document.createElement('div');
+  box.style.cssText = [
+    'background:#faf6f0','border-radius:16px','padding:24px 20px',
+    'max-width:340px','width:100%','box-shadow:0 8px 32px rgba(61,53,48,0.18)',
+    'font-family:\'DM Sans\',sans-serif','color:#3d3530','font-size:14px','line-height:1.6'
+  ].join(';');
+
+  const msg = document.createElement('p');
+  msg.style.cssText = 'margin:0 0 20px;white-space:pre-line;';
+  msg.textContent = message;
+
+  const btnRow = document.createElement('div');
+  btnRow.style.cssText = 'display:flex;gap:10px;justify-content:flex-end;';
+
+  const cancelBtn = document.createElement('button');
+  cancelBtn.textContent = 'Cancel';
+  cancelBtn.style.cssText = [
+    'background:none','border:1.5px solid #e8e0d8','border-radius:20px',
+    'padding:9px 18px','font-family:\'DM Sans\',sans-serif','font-size:13px',
+    'color:#7a6d66','cursor:pointer'
+  ].join(';');
+
+  const confirmBtn = document.createElement('button');
+  confirmBtn.textContent = 'Continue';
+  confirmBtn.style.cssText = [
+    'background:#d4907a','border:none','border-radius:20px',
+    'padding:9px 20px','font-family:\'DM Sans\',sans-serif','font-size:13px',
+    'font-weight:500','color:#fff','cursor:pointer'
+  ].join(';');
+
+  const dismiss = () => overlay.remove();
+  cancelBtn.onclick = dismiss;
+  overlay.onclick = (e) => { if (e.target === overlay) dismiss(); };
+  confirmBtn.onclick = () => { dismiss(); onConfirm(); };
+
+  btnRow.appendChild(cancelBtn);
+  btnRow.appendChild(confirmBtn);
+  box.appendChild(msg);
+  box.appendChild(btnRow);
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+}
+
+function hsRestoreBackup() {
+  const raw = document.getElementById('backup-area').value.trim();
+  if (!raw) {
+    showBackupResult('error', '⚠️ Paste a backup into the text area first.');
+    return;
+  }
+
+  let backup;
+  try {
+    backup = hsValidateBackup(raw);
+    backup = hsMigrateBackup(backup);
+  } catch(e) {
+    showBackupResult('error', '❌ ' + e.message);
+    return;
+  }
+
+  hsConfirm(
+    'Restoring will overwrite current HerStride data.\nA safety backup will be created first.\n\nContinue?',
+    function() {
+      // Create safety backup before touching anything
+      const safetyBackup = hsBuildSafetyBackup();
+
+      try {
+        // Remove only HerStride-owned keys
+        HS_OWNED_KEYS.forEach(k => localStorage.removeItem(k));
+
+        // Restore only HerStride-owned keys from backup.data
+        Object.entries(backup.data).forEach(([key, value]) => {
+          if (isHerStrideKey(key)) {
+            localStorage.setItem(key, value);
+          }
+        });
+
+        showBackupResult('success', '✅ Backup restored. Reloading…');
+        setTimeout(() => location.reload(), 1200);
+      } catch(e) {
+        // Restore failed — place safety backup in textarea so user can recover
+        document.getElementById('backup-area').value = JSON.stringify(safetyBackup, null, 2);
+        showBackupResult('error', '❌ Restore failed. A safety backup of your previous data has been placed in the box. Copy it now.');
+      }
+    }
+  );
+}
+
+function hsClearData() {
+  hsConfirm(
+    'This removes only HerStride logs, current week, coach notes,\nplan adjustments, draft, and onboarding state.\n\nA safety backup will be placed in the box first.\n\nContinue?',
+    function() {
+      // Build safety backup BEFORE deleting anything
+      const safetyBackup = hsBuildSafetyBackup();
+
+      try {
+        // Remove only HerStride-owned keys
+        HS_OWNED_KEYS.forEach(k => localStorage.removeItem(k));
+
+        // Place safety backup in textarea so user can copy it
+        document.getElementById('backup-area').value = JSON.stringify(safetyBackup, null, 2);
+        showBackupResult('warning', '⚠️ Data cleared. Safety backup is in the box above — copy it before reloading.');
+        setTimeout(() => location.reload(), 3000);
+      } catch(e) {
+        showBackupResult('error', '❌ Clear failed: ' + e.message);
+      }
+    }
+  );
+}
+
+function showBackupResult(type, msg) {
+  const el = document.getElementById('backup-result');
+  el.className = 'import-result ' + type;
+  el.textContent = msg;
+  el.style.display = 'block';
+}
+</script>
+</body>
+</html>
