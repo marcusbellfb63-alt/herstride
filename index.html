@@ -233,9 +233,14 @@
 
   .week-selector {
     display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px;
-    margin-bottom: 16px; scrollbar-width: none;
+    margin-bottom: 16px; scrollbar-width: none; align-items: center;
   }
   .week-selector::-webkit-scrollbar { display: none; }
+  .week-phase-label {
+    flex-shrink: 0; font-size: 10px; color: var(--text-soft);
+    text-transform: uppercase; letter-spacing: 0.6px; font-weight: 500;
+    padding: 0 2px 0 6px;
+  }
   .week-btn {
     flex-shrink: 0; background: var(--white); border: 1.5px solid var(--cream-dark);
     border-radius: 20px; padding: 7px 14px; font-size: 13px; font-weight: 500;
@@ -243,6 +248,10 @@
     transition: all 0.15s;
   }
   .week-btn.active { background: var(--rose-muted); border-color: var(--rose); color: var(--rose); }
+  .week-btn.past { background: var(--sage-muted); border-color: var(--sage-light); color: var(--sage); }
+  .week-btn.current { box-shadow: 0 0 0 2px var(--rose-light); }
+  .week-btn.upcoming { background: var(--white); border-style: dashed; color: var(--text-soft); }
+  .week-btn.active { background: var(--rose-muted); border-color: var(--rose); border-style: solid; color: var(--rose); }
 
   .week-title {
     font-family: 'Playfair Display', serif; font-size: 15px; color: var(--text);
@@ -277,6 +286,7 @@
     padding: 3px 9px; border-radius: 20px;
   }
   .roadmap-pill.current { background: var(--rose-muted); color: var(--rose); }
+  .roadmap-pill.completed { background: var(--sage-muted); color: var(--sage); }
   .roadmap-pill.future  { background: var(--cream-dark); color: var(--text-soft); }
 
   /* PAIN RULES */
@@ -656,7 +666,7 @@
 <body>
 
 <nav class="top-nav">
-  <div class="app-wordmark">HerStride <span>Foundation Phase</span></div>
+  <div class="app-wordmark">HerStride <span id="wordmark-phase">Foundation &amp; Rebuild</span></div>
   <div class="tabs">
     <button class="tab-btn active" onclick="switchTab('today',this)">Today</button>
     <button class="tab-btn" onclick="switchTab('plan',this)">Plan</button>
@@ -1049,50 +1059,17 @@
   <!-- PLAN -->
   <div id="tab-plan" class="tab-panel">
     <div class="phase-badge">
-      <h2>Foundation &amp; Rebuild</h2>
-      <p>8 weeks · Building your base safely</p>
+      <h2 id="plan-phase-name">Foundation &amp; Rebuild</h2>
+      <p id="plan-phase-description">Weeks 1–8 · Building your base safely</p>
     </div>
 
-    <div class="section-label">Current Week</div>
+    <div class="section-label">Training Weeks</div>
     <div class="week-selector" id="week-selector"></div>
 
     <div id="plan-week-view"></div>
 
     <div class="week-title">Phase Roadmap</div>
-    <div class="card">
-      <div class="roadmap-row">
-        <div class="roadmap-dot active"></div>
-        <div class="roadmap-info">
-          <div class="roadmap-name">Foundation / Rebuild</div>
-          <div class="roadmap-sub">8–12 weeks</div>
-        </div>
-        <span class="roadmap-pill current">Active</span>
-      </div>
-      <div class="roadmap-row">
-        <div class="roadmap-dot inactive"></div>
-        <div class="roadmap-info">
-          <div class="roadmap-name">Beginner Runner</div>
-          <div class="roadmap-sub">12–16 weeks</div>
-        </div>
-        <span class="roadmap-pill future">Up Next</span>
-      </div>
-      <div class="roadmap-row">
-        <div class="roadmap-dot inactive"></div>
-        <div class="roadmap-info">
-          <div class="roadmap-name">Endurance Build</div>
-          <div class="roadmap-sub">Ongoing</div>
-        </div>
-        <span class="roadmap-pill future">Future</span>
-      </div>
-      <div class="roadmap-row">
-        <div class="roadmap-dot inactive"></div>
-        <div class="roadmap-info">
-          <div class="roadmap-name">Marathon-Specific Block</div>
-          <div class="roadmap-sub">18–20 weeks</div>
-        </div>
-        <span class="roadmap-pill future">Future</span>
-      </div>
-    </div>
+    <div class="card" id="phase-roadmap"></div>
 
     <div class="week-title">Progression Rules</div>
     <div class="card">
@@ -1266,7 +1243,7 @@
       </ul>
     </div>
 
-    <div style="text-align:center;padding:6px 0 16px;font-size:11px;color:var(--text-soft);letter-spacing:0.3px;">HerStride v10.0 — Women's Health Foundation</div>
+    <div style="text-align:center;padding:6px 0 16px;font-size:11px;color:var(--text-soft);letter-spacing:0.3px;">HerStride v10.1 — 24-Week AI-Guided Training</div>
 
   </div>
 
@@ -1285,25 +1262,80 @@ const STORAGE_KEY  = 'herstride_logs_v1';
 const WEEK_KEY     = 'herstride_current_week';
 const COACH_KEY    = 'herStrideCoachState';
 const PLAN_ADJ_KEY = 'herstride_plan_adjustments';
+const SCHEDULE_HISTORY_KEY = 'herstride_schedule_history_v1';
 const DRAFT_KEY    = 'herstride_draft_v1';
 const ONBOARD_KEY  = 'herstride_onboarding_dismissed_v1';
 
 // ─── BACKUP / RESTORE CONSTANTS (declared early to avoid TDZ) ──
-const HS_APP_VERSION    = '10.0';
+const HS_APP_VERSION    = '10.1';
 const HS_SCHEMA_VERSION = 1;
 const HS_OWNED_KEYS = [
   'herstride_logs_v1',
   'herstride_current_week',
   'herStrideCoachState',
   'herstride_plan_adjustments',
+  'herstride_schedule_history_v1',
   'herstride_draft_v1',
   'herstride_onboarding_dismissed_v1'
 ];
 
 const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const PLAN_DAYS = ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'];
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
-// Foundation plan data (default — never mutated directly)
+function toLocalDateISO(date = new Date()) {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+const TRAINING_PHASES = [
+  {
+    id: 'foundation-rebuild',
+    name: 'Foundation & Rebuild',
+    startWeek: 1,
+    endWeek: 8,
+    description: 'Prepare walking endurance, hips, pelvic floor, strength, core, and training consistency.'
+  },
+  {
+    id: 'beginner-runner',
+    name: 'Beginner Runner',
+    startWeek: 9,
+    endWeek: 16,
+    description: 'Introduce and gradually progress easy run/walk training.'
+  },
+  {
+    id: 'endurance-foundation',
+    name: 'Endurance Foundation',
+    startWeek: 17,
+    endWeek: 24,
+    description: 'Build running consistency, easy-session duration, weekly tolerance, and long-run habits.'
+  }
+];
+
+function getSupportedMinWeek() {
+  return TRAINING_PHASES[0].startWeek;
+}
+
+function getSupportedMaxWeek() {
+  return TRAINING_PHASES[TRAINING_PHASES.length - 1].endWeek;
+}
+
+function normalizeTrainingWeek(value, fallback = getSupportedMinWeek()) {
+  const parsed = Number.parseInt(value, 10);
+  return Number.isInteger(parsed)
+    ? Math.min(getSupportedMaxWeek(), Math.max(getSupportedMinWeek(), parsed))
+    : fallback;
+}
+
+function getPhaseForWeek(week) {
+  const normalized = normalizeTrainingWeek(week);
+  return TRAINING_PHASES.find(phase => normalized >= phase.startWeek && normalized <= phase.endWeek)
+    || TRAINING_PHASES[0];
+}
+
+// App-owned conservative fallback plan. AI updates may customize unlocked weeks.
 const PLAN_DEFAULT = {
   1: ['15–20 min walk + core/glute','Yoga or rest','15–20 min walk','Strength workout','Rest or easy walk','20–25 min walk','Rest'],
   2: ['15–20 min walk + core/glute','Yoga or rest','15–20 min walk','Strength workout','Rest or easy walk','20–25 min walk','Rest'],
@@ -1313,6 +1345,22 @@ const PLAN_DEFAULT = {
   6: ['20–25 min walk + core/glute','Yoga or rest','Run/walk intro — 1 min jog / 2 min walk × 6','Strength workout','Rest or easy walk','30–40 min walk','Rest'],
   7: ['25–30 min walk + core/glute','Yoga or rest','Run/walk — 90 sec jog / 2 min walk × 6 or 2 min jog / 2 min walk × 5','Strength workout','Rest or easy walk','35–45 min walk','Rest'],
   8: ['25–30 min walk + core/glute','Yoga or rest','Run/walk — 90 sec jog / 2 min walk × 6 or 2 min jog / 2 min walk × 5','Strength workout','Rest or easy walk','35–45 min walk','Rest'],
+  9: ['25–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 1 min easy jog / 2 min walk × 7','Strength workout','Rest or easy walk','Run/walk — 1 min easy jog / 2 min walk × 8, or 35–45 min easy walk','Rest'],
+  10: ['25–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 90 sec easy jog / 2 min walk × 7','Strength workout','Rest or easy walk','Run/walk — 1 min easy jog / 2 min walk × 9, or 35–45 min easy walk','Rest'],
+  11: ['25–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 2 min easy jog / 2 min walk × 6','Strength workout','Rest or easy walk','Run/walk — 2 min easy jog / 2 min walk × 7','Rest'],
+  12: ['20–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 90 sec easy jog / 2 min walk × 7; repeat or walk if symptoms increase','Light strength workout','Rest or easy walk','30–40 min easy run/walk or walk','Rest'],
+  13: ['25–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 3 min easy jog / 2 min walk × 5','Strength workout','Rest or easy walk','Run/walk — 3 min easy jog / 2 min walk × 6','Rest'],
+  14: ['25–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 4 min easy jog / 2 min walk × 5','Strength workout','Rest or easy walk','Run/walk — 4 min easy jog / 2 min walk × 6','Rest'],
+  15: ['25–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 5 min easy jog / 2 min walk × 4','Strength workout','Rest or easy walk','Run/walk — 5 min easy jog / 2 min walk × 5','Rest'],
+  16: ['20–30 min easy walk + core/glute','Yoga, mobility, or rest','Run/walk — 6 min easy jog / 2 min walk × 4','Strength workout','Rest or easy walk','Run/walk — 8 min easy jog / 2 min walk × 4; repeat Week 15 if needed','Rest'],
+  17: ['25–30 min easy walk + core/glute','Mobility or rest','20 min easy conversational run/walk with walk breaks','Strength workout','Rest or easy walk','30 min easy run/walk; take walk breaks early','Rest'],
+  18: ['25–30 min easy walk + core/glute','Mobility or rest','22 min easy conversational run/walk','Strength workout','Rest or easy walk','32 min easy run/walk with comfortable walk breaks','Rest'],
+  19: ['25–30 min easy walk + core/glute','Mobility or rest','25 min easy conversational run/walk','Strength workout','Rest or easy walk','35 min easy run/walk with comfortable walk breaks','Rest'],
+  20: ['20–30 min easy walk + core/glute','Mobility or rest','20 min easy run/walk; deload if symptoms are elevated','Light strength workout','Rest or easy walk','30 min easy run/walk or walk','Rest'],
+  21: ['25–30 min easy walk + core/glute','Mobility or rest','27 min easy conversational run/walk','Strength workout','Rest or easy walk','38 min easy run/walk with walk breaks as needed','Rest'],
+  22: ['25–30 min easy walk + core/glute','Mobility or rest','30 min easy conversational run/walk','Strength workout','Rest or easy walk','40 min easy run/walk with walk breaks as needed','Rest'],
+  23: ['25–35 min easy walk + core/glute','Mobility or rest','30–32 min easy conversational run/walk','Strength workout','Rest or easy walk','42 min easy run/walk; keep effort relaxed','Rest'],
+  24: ['20–30 min easy walk + core/glute','Mobility or rest','28–30 min easy conversational run/walk','Light strength workout','Rest or easy walk','40–45 min easy endurance run/walk; no pace target','Rest'],
 };
 
 // Working PLAN — starts as a deep copy of defaults, then merges stored adjustments
@@ -1332,6 +1380,126 @@ const PLAN = JSON.parse(JSON.stringify(PLAN_DEFAULT));
     });
   } catch(e) { /* ignore */ }
 })();
+
+function loadScheduleHistory() {
+  try {
+    const stored = JSON.parse(localStorage.getItem(SCHEDULE_HISTORY_KEY) || '{}');
+    return stored && typeof stored === 'object' && !Array.isArray(stored) ? stored : {};
+  } catch(e) {
+    return {};
+  }
+}
+
+function persistScheduleHistory() {
+  localStorage.setItem(SCHEDULE_HISTORY_KEY, JSON.stringify(scheduleHistory));
+}
+
+function hasLogsForTrainingWeek(week) {
+  return flattenLogs(logs).some(log => Number.parseInt(log.week, 10) === week);
+}
+
+function ensureScheduleSnapshot(week, options = {}) {
+  const w = normalizeTrainingWeek(week);
+  const existing = scheduleHistory[w];
+  const now = new Date().toISOString();
+  if (!existing || !Array.isArray(existing.days) || existing.days.length !== 7) {
+    const phase = getPhaseForWeek(w);
+    scheduleHistory[w] = {
+      week: w,
+      phase: phase.name,
+      days: PLAN[w].slice(),
+      source: options.source || 'default',
+      createdAt: now,
+      updatedAt: now,
+      locked: Boolean(options.locked)
+    };
+  } else {
+    existing.week = w;
+    existing.phase = getPhaseForWeek(w).name;
+    if (options.locked) existing.locked = true;
+  }
+  persistScheduleHistory();
+  return scheduleHistory[w];
+}
+
+function initializeScheduleHistory() {
+  let changed = false;
+  for (let week = getSupportedMinWeek(); week <= currentWeek; week++) {
+    const existing = scheduleHistory[week];
+    const shouldLock = week < currentWeek || hasLogsForTrainingWeek(week);
+    if (!existing || !Array.isArray(existing.days) || existing.days.length !== 7) {
+      const phase = getPhaseForWeek(week);
+      const now = new Date().toISOString();
+      scheduleHistory[week] = {
+        week,
+        phase: phase.name,
+        days: PLAN[week].slice(),
+        source: 'default',
+        createdAt: now,
+        updatedAt: now,
+        locked: shouldLock
+      };
+      changed = true;
+    } else if (shouldLock && !existing.locked) {
+      existing.locked = true;
+      changed = true;
+    }
+  }
+  if (changed) persistScheduleHistory();
+}
+
+function getScheduleForWeek(week) {
+  const w = normalizeTrainingWeek(week);
+  const snapshot = scheduleHistory[w];
+  return snapshot && Array.isArray(snapshot.days) && snapshot.days.length === 7
+    ? snapshot.days.slice()
+    : PLAN[w].slice();
+}
+
+function storePlanAdjustment(week, days) {
+  let stored = {};
+  try {
+    stored = JSON.parse(localStorage.getItem(PLAN_ADJ_KEY) || '{}');
+    if (!stored || typeof stored !== 'object' || Array.isArray(stored)) stored = {};
+  } catch(e) {
+    stored = {};
+  }
+  stored[week] = days.slice();
+  localStorage.setItem(PLAN_ADJ_KEY, JSON.stringify(stored));
+}
+
+function updateScheduleFromAI(week, dayUpdates, activeWeekBefore) {
+  const w = normalizeTrainingWeek(week);
+  const existing = scheduleHistory[w];
+  if (w < activeWeekBefore || hasLogsForTrainingWeek(w) || (existing && existing.locked)) return false;
+
+  const nextDays = getScheduleForWeek(w);
+  Object.entries(dayUpdates).forEach(([day, workout]) => {
+    nextDays[PLAN_DAYS.indexOf(day)] = workout;
+  });
+  PLAN[w] = nextDays.slice();
+  storePlanAdjustment(w, nextDays);
+
+  const now = new Date().toISOString();
+  scheduleHistory[w] = {
+    week: w,
+    phase: getPhaseForWeek(w).name,
+    days: nextDays.slice(),
+    source: 'ai',
+    createdAt: existing && existing.createdAt ? existing.createdAt : now,
+    updatedAt: now,
+    locked: false
+  };
+  persistScheduleHistory();
+  return true;
+}
+
+function lockCompletedWeeks(previousCurrentWeek, nextCurrentWeek) {
+  if (nextCurrentWeek <= previousCurrentWeek) return;
+  for (let week = getSupportedMinWeek(); week < nextCurrentWeek; week++) {
+    ensureScheduleSnapshot(week, { locked: true });
+  }
+}
 
 const DAY_ICONS = ['☁️','🚶‍♀️','🧘‍♀️','🚶‍♀️','💪','🌿','🚶‍♀️'];
 
@@ -1420,20 +1588,69 @@ function escapeHTML(val) {
 
 // ─── STATE ─────────────────────────────────────────────────
 let logs = JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-let currentWeek = parseInt(localStorage.getItem(WEEK_KEY) || '1');
+let currentWeek = normalizeTrainingWeek(localStorage.getItem(WEEK_KEY) || getSupportedMinWeek());
+let viewedWeek = currentWeek;
+let scheduleHistory = loadScheduleHistory();
 let selectedStatus = '';
 let selectedPF = '';
 let coachState = JSON.parse(localStorage.getItem(COACH_KEY) || 'null') || {
   coachNote: '', phaseStatus: '', weeklyFocus: '', reminders: [], manualMilestones: [], lastUpdated: null
 };
 
+function renderPhaseUI() {
+  const activePhase = getPhaseForWeek(currentWeek);
+  const viewedPhase = getPhaseForWeek(viewedWeek);
+  document.getElementById('heroPill').textContent = `Week ${currentWeek} · ${activePhase.name}`;
+  document.getElementById('wordmark-phase').textContent = activePhase.name;
+  document.getElementById('plan-phase-name').textContent = viewedPhase.name;
+  document.getElementById('plan-phase-description').textContent =
+    `Weeks ${viewedPhase.startWeek}–${viewedPhase.endWeek} · ${viewedPhase.description}`;
+}
+
+function renderPhaseRoadmap() {
+  const activePhase = getPhaseForWeek(currentWeek);
+  const activeIndex = TRAINING_PHASES.findIndex(item => item.id === activePhase.id);
+  const roadmap = [
+    ...TRAINING_PHASES,
+    {
+      id: 'marathon-specific',
+      name: 'Marathon-Specific Block',
+      startWeek: null,
+      endWeek: null,
+      description: 'A later stage outside this 24-week plan.'
+    }
+  ];
+  document.getElementById('phase-roadmap').innerHTML = roadmap.map((phase, index) => {
+    const isActive = phase.id === activePhase.id;
+    const isCompleted = index < activeIndex;
+    const status = isActive ? 'Active' : isCompleted ? 'Completed' : (index === activeIndex + 1 ? 'Up Next' : 'Future');
+    const statusClass = isActive ? 'current' : isCompleted ? 'completed' : 'future';
+    const range = phase.startWeek
+      ? `Weeks ${phase.startWeek}–${phase.endWeek}`
+      : 'Later, after endurance foundation';
+    return `
+      <div class="roadmap-row">
+        <div class="roadmap-dot ${isActive ? 'active' : 'inactive'}"></div>
+        <div class="roadmap-info">
+          <div class="roadmap-name">${escapeHTML(phase.name)}</div>
+          <div class="roadmap-sub">${escapeHTML(range)} · ${escapeHTML(phase.description)}</div>
+        </div>
+        <span class="roadmap-pill ${statusClass}">${status}</span>
+      </div>
+    `;
+  }).join('');
+}
+
 // ─── INIT ──────────────────────────────────────────────────
-(function init() {
+function initApp() {
   const now = new Date();
+  localStorage.setItem(WEEK_KEY, currentWeek);
+  initializeScheduleHistory();
   document.getElementById('heroDay').textContent = DAYS[now.getDay()];
   document.getElementById('heroFull').textContent = `${MONTHS[now.getMonth()]} ${now.getDate()}, ${now.getFullYear()}`;
-  document.getElementById('heroPill').textContent = `Week ${currentWeek} · Foundation & Rebuild`;
 
+  renderPhaseUI();
+  renderPhaseRoadmap();
   renderTodayWorkout();
   renderStrengthList();
   renderWeekSelector();
@@ -1448,7 +1665,7 @@ let coachState = JSON.parse(localStorage.getItem(COACH_KEY) || 'null') || {
   updateStickySaveBar('today');
   checkOnboarding();
   initLogDateInput();
-})();
+}
 
 // ─── TABS ──────────────────────────────────────────────────
 function switchTab(tab, btn) {
@@ -1456,6 +1673,13 @@ function switchTab(tab, btn) {
   document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
   document.getElementById('tab-' + tab).classList.add('active');
   if (btn) btn.classList.add('active');
+  if (tab === 'plan') {
+    viewedWeek = currentWeek;
+    renderPhaseUI();
+    renderWeekSelector();
+    renderPlanWeek();
+    requestAnimationFrame(scrollCurrentWeekIntoView);
+  }
   if (tab === 'history') renderHistory();
   if (tab === 'progress') { renderMilestones(); renderProgressTab(); }
   updateStickySaveBar(tab);
@@ -1470,7 +1694,7 @@ function updateVal(sliderId, valId) {
 function renderTodayWorkout() {
   const dayIdx = new Date().getDay(); // 0=Sun
   const planIdx = dayIdx === 0 ? 6 : dayIdx - 1;
-  const weekPlan = PLAN[currentWeek];
+  const weekPlan = getScheduleForWeek(currentWeek);
   const workout = weekPlan[planIdx];
   document.getElementById('todayWorkoutTitle').textContent = workout;
   document.getElementById('todayWorkoutDetail').textContent = getDayDetail(dayIdx);
@@ -1484,7 +1708,7 @@ function getDayDetail(dayIdx) {
     3: 'Easy conversational pace',
     4: 'Glutes, hips, and core focus 💪',
     5: 'Your choice — honor how you feel',
-    6: 'Your longest walk of the week 🌸',
+    6: 'Your longer easy session — keep the effort conversational 🌸',
   };
   return details[dayIdx] || '';
 }
@@ -1666,7 +1890,7 @@ function getActiveCtxTags() {
   return Array.from(document.querySelectorAll('#ctx-tags-group .ctx-tag.active')).map(el => el.textContent);
 }
 
-// ─── WOMEN'S HEALTH (v10.0) ─────────────────────────────────
+// ─── WOMEN'S HEALTH (introduced in v10.0) ───────────────────
 function getWomensHealthFromForm() {
   const weightEl = document.getElementById('wh-weight');
   const cycleDayEl = document.getElementById('wh-cycle-day');
@@ -1815,40 +2039,61 @@ function toggleCheck(id) {
 // ─── WEEK SELECTOR ─────────────────────────────────────────
 function renderWeekSelector() {
   const container = document.getElementById('week-selector');
-  container.innerHTML = Array.from({length: 8}, (_, i) => i + 1).map(w => `
-    <button class="week-btn${w === currentWeek ? ' active' : ''}" onclick="setWeek(${w})">Week ${w}</button>
-  `).join('');
+  container.innerHTML = Array.from(
+    {length: getSupportedMaxWeek() - getSupportedMinWeek() + 1},
+    (_, i) => i + getSupportedMinWeek()
+  ).map(w => {
+    const phase = getPhaseForWeek(w);
+    const phaseLabel = w === phase.startWeek
+      ? `<span class="week-phase-label">${escapeHTML(phase.name)}</span>`
+      : '';
+    const state = w < currentWeek ? 'past' : w === currentWeek ? 'current' : 'upcoming';
+    const active = w === viewedWeek ? ' active' : '';
+    const stateLabel = state === 'past' ? 'completed' : state;
+    return `${phaseLabel}
+      <button class="week-btn ${state}${active}" data-week="${w}" aria-current="${w === currentWeek ? 'step' : 'false'}"
+        aria-label="Week ${w}, ${stateLabel}${w === viewedWeek ? ', selected' : ''}" onclick="setWeek(${w})">Week ${w}</button>`;
+  }).join('');
 }
 
 function setWeek(w) {
-  currentWeek = w;
-  localStorage.setItem(WEEK_KEY, w);
-  document.getElementById('heroPill').textContent = `Week ${w} · Foundation & Rebuild`;
+  const parsed = Number(w);
+  if (!Number.isInteger(parsed) || parsed < getSupportedMinWeek() || parsed > getSupportedMaxWeek()) return;
+  viewedWeek = parsed;
+  renderPhaseUI();
   renderWeekSelector();
   renderPlanWeek();
-  renderTodayWorkout();
+  requestAnimationFrame(() => scrollWeekIntoView(viewedWeek));
+}
+
+function scrollWeekIntoView(week) {
+  const button = document.querySelector(`#week-selector .week-btn[data-week="${week}"]`);
+  if (button) button.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+}
+
+function scrollCurrentWeekIntoView() {
+  scrollWeekIntoView(currentWeek);
 }
 
 // ─── PLAN WEEK VIEW ────────────────────────────────────────
 function renderPlanWeek() {
-  const weekPlan = PLAN[currentWeek];
+  const weekPlan = getScheduleForWeek(viewedWeek);
   const todayIdx = new Date().getDay();
   const dayNames = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
   const planIdxToJsDay = [1,2,3,4,5,6,0];
 
-  // currentWeek matches the stored week the user is on.
-  // Only highlight today's row if viewing the week the user currently is on.
-  const viewingCurrentWeek = (currentWeek === parseInt(localStorage.getItem(WEEK_KEY) || currentWeek));
+  // Only highlight today's row while inspecting the actual active training week.
+  const viewingCurrentWeek = viewedWeek === currentWeek;
 
   let note = '';
-  if (currentWeek >= 5 && currentWeek <= 6) note = '<p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">⚡ Only introduce run/walk if pain and symptoms are stable.</p>';
-  if (currentWeek >= 7) note = '<p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">⚡ Only progress if body tolerated Weeks 5–6.</p>';
+  if (viewedWeek >= 5 && viewedWeek <= 8) note = '<p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">⚡ Only introduce run/walk if pain and symptoms are stable.</p>';
+  if (viewedWeek >= 9) note = '<p style="font-size:12px;color:var(--text-soft);font-style:italic;margin-bottom:12px;">⚡ Keep running conversational. Repeat or deload if hip or pelvic-floor symptoms increase.</p>';
 
   const rows = weekPlan.map((workout, i) => {
     const jsDay = planIdxToJsDay[i];
     const isToday = viewingCurrentWeek && jsDay === todayIdx;
     // Show logged indicator if any log exists for a date that falls on this weekday
-    const isLogged = isLoggedForWeekday(jsDay);
+    const isLogged = viewingCurrentWeek && isLoggedForWeekday(jsDay);
     const dayLabel = dayNames[i]
       + (isToday ? ' ★' : '')
       + (isLogged && !isToday ? ' ✓' : '');
@@ -1862,7 +2107,7 @@ function renderPlanWeek() {
   }).join('');
 
   document.getElementById('plan-week-view').innerHTML = `
-    <div class="week-title">Week ${currentWeek} Schedule</div>
+    <div class="week-title">Week ${viewedWeek} · ${escapeHTML(getPhaseForWeek(viewedWeek).name)}</div>
     <div class="card" style="padding:14px 18px;">${note}${rows}</div>
   `;
 }
@@ -1971,7 +2216,7 @@ function renderMilestones() {
 
 // ─── DATA MODEL HELPERS ────────────────────────────────────
 /*
-HerStride v9.4.6 QA checklist:
+HerStride v10.1 compatibility checklist:
 - Empty logs render Progress safely.
 - Legacy single-session logs still work.
 - Multi-session logs still work.
@@ -2471,10 +2716,10 @@ function getStreakStats() {
   // Current streak: consecutive active days ending today, or ending yesterday
   // if today has no active log yet.
   const now = new Date();
-  const todayISO = now.toISOString().split('T')[0];
+  const todayISO = toLocalDateISO(now);
   const yesterday = new Date(now);
   yesterday.setDate(now.getDate() - 1);
-  const yesterdayISO = yesterday.toISOString().split('T')[0];
+  const yesterdayISO = toLocalDateISO(yesterday);
 
   let anchor = null;
   if (dateSet.has(todayISO)) anchor = todayISO;
@@ -2483,7 +2728,7 @@ function getStreakStats() {
   let current = 0;
   if (anchor) {
     let cursor = new Date(anchor + 'T00:00:00');
-    while (dateSet.has(cursor.toISOString().split('T')[0])) {
+    while (dateSet.has(toLocalDateISO(cursor))) {
       current++;
       cursor.setDate(cursor.getDate() - 1);
     }
@@ -2498,14 +2743,18 @@ function saveDay() {
   const logDateInput = document.getElementById('log-date-input');
   const logDateISO = logDateInput ? logDateInput.value : '';
   const now = new Date();
-  const todayISO = now.toISOString().split('T')[0];
+  const todayISO = toLocalDateISO(now);
   const targetISO = logDateISO || todayISO;
 
   // Resolve planned workout for the target date's day-of-week
   const targetDate = new Date(targetISO + 'T12:00:00');
   const dayIdx = targetDate.getDay();
   const planIdx = dayIdx === 0 ? 6 : dayIdx - 1;
-  const plannedWorkout = PLAN[currentWeek][planIdx];
+  const activeSnapshot = ensureScheduleSnapshot(currentWeek);
+  activeSnapshot.locked = true;
+  activeSnapshot.updatedAt = new Date().toISOString();
+  persistScheduleHistory();
+  const plannedWorkout = activeSnapshot.days[planIdx];
 
   const strengthCompleted = EXERCISES.filter(ex => document.getElementById('ex-' + ex.id)?.classList.contains('checked'));
   const strengthNotes = EXERCISES.reduce((acc, ex) => {
@@ -2546,7 +2795,7 @@ function saveDay() {
     status: selectedStatus || 'none',
     plannedWorkout,
     week: currentWeek,
-    phase: 'Foundation & Rebuild',
+    phase: getPhaseForWeek(currentWeek).name,
     distance: distVal,
     time: timeVal,
     avgPace,
@@ -2624,7 +2873,7 @@ function persistAndRefresh() {
   // Reset log date back to today after save
   const logDateInput = document.getElementById('log-date-input');
   if (logDateInput) {
-    logDateInput.value = new Date().toISOString().split('T')[0];
+    logDateInput.value = toLocalDateISO();
     updateLogDateUI();
   }
   renderHistory();
@@ -3052,7 +3301,7 @@ function renderProgressTab() {
     statRow('Stable-body days', stableBody7, '(hip ≤3, PF mild/none)') +
     progressBar(stablePct, stableBody7 >= 3 ? 'var(--sage)' : 'var(--rose-light)');
 
-  // ─── Women's Health Context (v10.0) ───
+  // ─── Women's Health Context (introduced in v10.0) ───
   const whStats = getWomensHealthStats(flat);
   const whHTML = !whStats.hasData
     ? '<div class="empty-state" style="padding:20px 0;"><span class="empty-state-icon">🌙</span>Women&#39;s health context will appear after a few saved entries.</div>'
@@ -3164,29 +3413,49 @@ function buildExport() {
      (Array.isArray(l.womensHealth.symptoms) && l.womensHealth.symptoms.length) ||
      safeStr(l.womensHealth.notes) || safeStr(l.womensHealth.weight))
   ).slice(0,7);
+  const activePhase = getPhaseForWeek(currentWeek);
+  const scheduleWindowWeeks = Array.from(new Set([
+    currentWeek - 1,
+    currentWeek,
+    currentWeek + 1,
+    currentWeek + 2,
+    currentWeek + 3
+  ])).filter(week => week >= getSupportedMinWeek() && week <= getSupportedMaxWeek());
+  const scheduleWindow = scheduleWindowWeeks.map(week => {
+    const snapshot = scheduleHistory[week];
+    const locked = Boolean(snapshot && snapshot.locked) || week < currentWeek || hasLogsForTrainingWeek(week);
+    const state = locked ? 'HISTORICAL/LOCKED' : week === currentWeek ? 'CURRENT/ADJUSTABLE UNTIL LOGGED' : 'UPCOMING/ADJUSTABLE';
+    const days = getScheduleForWeek(week);
+    return `  Week ${week} · ${getPhaseForWeek(week).name} · ${state}${week === currentWeek ? ' ← CURRENT' : ''}:\n` +
+      days.map((day, index) => `    ${PLAN_DAYS[index]}: ${day}`).join('\n');
+  });
+  const phaseOverview = TRAINING_PHASES.map(phase =>
+    `  ${phase.name} (${phase.startWeek}–${phase.endWeek}): ${phase.description}`
+  );
 
   const lines = [
     '=== HERSTRIDE EXPORT ===',
     `Generated: ${new Date().toLocaleString()}`,
-    `Current Phase: Foundation & Rebuild`,
-    `Current Week: ${currentWeek}`,
+    `Current Phase: ${activePhase.name}`,
+    `Current Week: ${currentWeek} of ${getSupportedMaxWeek()}`,
     `Total Logged Days: ${flat.length}`,
     '',
     '--- USER PROFILE ---',
-    '  App: HerStride | Phase: Foundation & Rebuild (Weeks 1–8)',
-    `  Active Week: ${currentWeek} of 8`,
+    `  App: HerStride | Phase: ${activePhase.name} (Weeks ${activePhase.startWeek}–${activePhase.endWeek})`,
+    `  Active Week: ${currentWeek} of ${getSupportedMaxWeek()}`,
+    '',
+    '--- PHASE OVERVIEW ---',
+    ...phaseOverview,
+    '  Marathon-Specific Block: later stage outside this 24-week release.',
     '',
     '--- TRAINING PHILOSOPHY ---',
     '  Consistency over intensity. Pelvic floor and hip health are the priority.',
     '  No aggressive progression when symptoms are elevated.',
-    '  Walk-based foundation. Run/walk introduced only in Weeks 5+ if symptom-free.',
+    '  Running stays at easy conversational effort with walk breaks whenever useful.',
     '',
-    '--- CURRENT PLAN (WEEKS 1–8) ---',
-    ...Object.entries(PLAN).map(([w, days]) => {
-      const names = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
-      return `  Week ${w}${parseInt(w) === currentWeek ? ' ← CURRENT' : ''}:\n` +
-        days.map((d,i) => `    ${names[i]}: ${d}`).join('\n');
-    }),
+    '--- RELEVANT SCHEDULE WINDOW ---',
+    ...scheduleWindow,
+    '  Locked weeks must not be rewritten. Current/unlocked and upcoming weeks may be adjusted safely.',
     '',
     '--- SESSION TRENDS ---',
     `  Range: ${tl.length} session(s)`,
@@ -3342,11 +3611,12 @@ function buildExport() {
     '  Return ONLY a HERSTRIDE_UPDATE block in this exact format:',
     '  HERSTRIDE_UPDATE',
     '  {',
-    '    "currentWeek": <number 1-8>,',
+    '    "currentWeek": <number 1-24>,',
     '    "coachNote": "<your coaching message>",',
     '    "phaseStatus": "<continue|repeat_week|deload|progress>",',
     '    "weeklyFocus": "<short focus string>",',
     '    "planAdjustments": { "week": <number>, "days": { "Monday": "...", ... } },',
+    '    "weekPlans": [{ "week": <number 1-24>, "days": { "Monday": "...", ... } }],',
     '    "reminders": ["<string>", ...],',
     '    "milestones": ["<string>", ...]',
     '  }',
@@ -3357,7 +3627,10 @@ function buildExport() {
     '  - Do not recommend aggressive progression.',
     '  - Prioritize consistency, recovery, pelvic floor symptoms, and hip pain.',
     '  - If hip pain avg > 3 or PF worse days > 2, recommend repeat_week or deload.',
-    '  - Keep coaching tone warm, supportive, and non-clinical.',
+    '  - repeat_week and deload must not advance currentWeek.',
+    '  - Never revise a schedule marked HISTORICAL/LOCKED.',
+    '  - Keep every run at easy conversational effort and retain walk breaks as needed.',
+    '  - Use warm, encouraging, non-shaming, non-clinical language.',
     '',
     '=== END HERSTRIDE EXPORT ===',
   ];
@@ -3378,6 +3651,30 @@ function copyExport() {
 }
 
 // ─── SYNC — IMPORT ─────────────────────────────────────────
+function validateImportedWeekPlan(candidate, label) {
+  if (!candidate || typeof candidate !== 'object' || Array.isArray(candidate)) {
+    throw new Error(`${label} must be an object.`);
+  }
+  const week = Number(candidate.week);
+  if (!Number.isInteger(week) || week < getSupportedMinWeek() || week > getSupportedMaxWeek()) {
+    throw new Error(`${label}.week must be a whole number from ${getSupportedMinWeek()}–${getSupportedMaxWeek()}.`);
+  }
+  if (!candidate.days || typeof candidate.days !== 'object' || Array.isArray(candidate.days)) {
+    throw new Error(`${label}.days must be an object keyed by day name.`);
+  }
+  const entries = Object.entries(candidate.days);
+  if (!entries.length) throw new Error(`${label}.days must include at least one day.`);
+  const days = {};
+  entries.forEach(([day, workout]) => {
+    if (!PLAN_DAYS.includes(day)) throw new Error(`${label} contains an invalid day: ${day}.`);
+    if (typeof workout !== 'string' || !workout.trim() || workout.length > 160) {
+      throw new Error(`${label}.${day} must be a non-empty workout of 160 characters or fewer.`);
+    }
+    days[day] = workout.trim();
+  });
+  return { week, days };
+}
+
 function applyUpdate() {
   const raw = document.getElementById('import-area').value.trim();
   const resultEl = document.getElementById('import-result');
@@ -3394,18 +3691,53 @@ function applyUpdate() {
   } catch(e) {
     showResult('error', 'Could not parse update — the JSON inside the block may be malformed. Ask your AI to try again.'); return;
   }
+  if (!data || typeof data !== 'object' || Array.isArray(data)) {
+    showResult('error', 'Update must contain one JSON object. No changes were applied.'); return;
+  }
 
   const validPhaseStatuses = ['continue','repeat_week','deload','progress'];
-
+  let importedWeek;
   if (data.currentWeek !== undefined) {
-    const w = parseInt(data.currentWeek);
-    if (isNaN(w) || w < 1 || w > 8) { showResult('error', 'Invalid currentWeek — must be 1–8.'); return; }
-    currentWeek = w;
-    localStorage.setItem(WEEK_KEY, w);
-    document.getElementById('heroPill').textContent = `Week ${w} · Foundation & Rebuild`;
-    renderWeekSelector();
-    renderPlanWeek();
-    renderTodayWorkout();
+    importedWeek = Number(data.currentWeek);
+    if (!Number.isInteger(importedWeek) || importedWeek < getSupportedMinWeek() || importedWeek > getSupportedMaxWeek()) {
+      showResult('error', `Invalid currentWeek — must be a whole number from ${getSupportedMinWeek()}–${getSupportedMaxWeek()}. No changes were applied.`);
+      return;
+    }
+  }
+  if (data.phaseStatus !== undefined && !validPhaseStatuses.includes(data.phaseStatus)) {
+    showResult('error', `Invalid phaseStatus. Use ${validPhaseStatuses.join(', ')}. No changes were applied.`);
+    return;
+  }
+
+  let importedPlans = [];
+  try {
+    if (data.planAdjustments !== undefined) {
+      importedPlans.push(validateImportedWeekPlan(data.planAdjustments, 'planAdjustments'));
+    }
+    if (data.weekPlans !== undefined) {
+      if (!Array.isArray(data.weekPlans) || data.weekPlans.length > getSupportedMaxWeek()) {
+        throw new Error(`weekPlans must be an array with no more than ${getSupportedMaxWeek()} entries.`);
+      }
+      importedPlans = importedPlans.concat(
+        data.weekPlans.map((plan, index) => validateImportedWeekPlan(plan, `weekPlans[${index}]`))
+      );
+    }
+  } catch(e) {
+    showResult('error', `${e.message} No changes were applied.`);
+    return;
+  }
+
+  const previousWeek = currentWeek;
+  const nextPhaseStatus = data.phaseStatus !== undefined ? data.phaseStatus : 'continue';
+  if (importedWeek !== undefined) {
+    if ((nextPhaseStatus === 'repeat_week' || nextPhaseStatus === 'deload') && importedWeek > previousWeek) {
+      importedWeek = previousWeek;
+    }
+    lockCompletedWeeks(previousWeek, importedWeek);
+    currentWeek = importedWeek;
+    viewedWeek = currentWeek;
+    localStorage.setItem(WEEK_KEY, currentWeek);
+    ensureScheduleSnapshot(currentWeek, { locked: hasLogsForTrainingWeek(currentWeek) });
   }
 
   if (data.coachNote !== undefined && typeof data.coachNote === 'string') {
@@ -3413,7 +3745,7 @@ function applyUpdate() {
   }
 
   if (data.phaseStatus !== undefined) {
-    coachState.phaseStatus = validPhaseStatuses.includes(data.phaseStatus) ? data.phaseStatus : 'continue';
+    coachState.phaseStatus = data.phaseStatus;
   }
 
   if (data.weeklyFocus !== undefined && typeof data.weeklyFocus === 'string') {
@@ -3428,43 +3760,35 @@ function applyUpdate() {
     coachState.manualMilestones = data.milestones.filter(r => typeof r === 'string').slice(0, 6);
   }
 
-  if (data.planAdjustments !== undefined) {
-    const adj = data.planAdjustments;
-    if (adj.week && adj.days && typeof adj.days === 'object') {
-      const w = parseInt(adj.week);
-      if (w >= 1 && w <= 8) {
-        const dayMap = { Monday:0, Tuesday:1, Wednesday:2, Thursday:3, Friday:4, Saturday:5, Sunday:6 };
-        Object.entries(adj.days).forEach(([day, workout]) => {
-          if (dayMap[day] !== undefined && typeof workout === 'string') {
-            PLAN[w][dayMap[day]] = workout.slice(0, 120);
-          }
-        });
-
-        // Persist plan adjustments to localStorage
-        let storedAdj = {};
-        try { storedAdj = JSON.parse(localStorage.getItem(PLAN_ADJ_KEY) || '{}'); } catch(e) {}
-        storedAdj[w] = PLAN[w].slice(); // store full week array
-        localStorage.setItem(PLAN_ADJ_KEY, JSON.stringify(storedAdj));
-
-        renderPlanWeek();
-        renderTodayWorkout();
-      }
-    }
-  }
+  let appliedPlanCount = 0;
+  let protectedPlanCount = 0;
+  importedPlans.forEach(plan => {
+    if (updateScheduleFromAI(plan.week, plan.days, previousWeek)) appliedPlanCount++;
+    else protectedPlanCount++;
+  });
 
   coachState.lastUpdated = new Date().toISOString();
   localStorage.setItem(COACH_KEY, JSON.stringify(coachState));
 
+  renderPhaseUI();
+  renderPhaseRoadmap();
+  renderWeekSelector();
+  renderPlanWeek();
+  renderTodayWorkout();
   renderCoachCard();
   renderReminders();
   renderMilestones();
 
   const recent7 = flattenLogs(logs).slice(0, 7);
   const cautionFlag = recent7.some(l => parseInt(l.hip) >= 4 || l.pelvicFloor === 'Worse');
-  if (cautionFlag && (data.phaseStatus === 'progress' || data.currentWeek > currentWeek - 1)) {
+  const advanced = currentWeek > previousWeek;
+  const protectedNote = protectedPlanCount
+    ? ` ${protectedPlanCount} locked historical week plan${protectedPlanCount === 1 ? ' was' : 's were'} preserved.`
+    : '';
+  if (cautionFlag && (data.phaseStatus === 'progress' || advanced)) {
     showResult('warning', '✅ Update applied. However: recent symptoms suggest caution. Consider repeating or modifying this week.');
   } else {
-    showResult('success', '✅ Coaching update applied! Coach note, reminders, and week settings have been updated.');
+    showResult('success', `✅ Coaching update applied.${appliedPlanCount ? ` ${appliedPlanCount} week plan${appliedPlanCount === 1 ? '' : 's'} updated.` : ''}${protectedNote}`);
   }
   document.getElementById('import-area').value = '';
 }
@@ -3822,7 +4146,7 @@ function hsChooseAddOrReplace(message, labelAdd, labelReplace, onAdd, onReplace)
 function initLogDateInput() {
   const input = document.getElementById('log-date-input');
   if (!input) return;
-  const todayISO = new Date().toISOString().split('T')[0];
+  const todayISO = toLocalDateISO();
   input.value = todayISO;
   input.max = todayISO; // no future dates
   input.addEventListener('change', updateLogDateUI);
@@ -3832,7 +4156,7 @@ function initLogDateInput() {
 function updateLogDateUI() {
   const input = document.getElementById('log-date-input');
   if (!input) return;
-  const todayISO = new Date().toISOString().split('T')[0];
+  const todayISO = toLocalDateISO();
   const selected = input.value;
   const isBacklog = selected && selected !== todayISO;
   const badge = document.getElementById('log-date-badge');
@@ -3943,7 +4267,7 @@ function hsRestoreBackup() {
 
 function hsClearData() {
   hsConfirm(
-    'This removes only HerStride logs, current week, coach notes,\nplan adjustments, draft, and onboarding state.\n\nA safety backup will be placed in the box first.\n\nContinue?',
+    'This removes only HerStride logs, current week, coach notes,\nplan adjustments, schedule snapshots, draft, and onboarding state.\n\nA safety backup will be placed in the box first.\n\nContinue?',
     function() {
       // Build safety backup BEFORE deleting anything
       const safetyBackup = hsBuildSafetyBackup();
@@ -3969,6 +4293,8 @@ function showBackupResult(type, msg) {
   el.textContent = msg;
   el.style.display = 'block';
 }
+
+initApp();
 </script>
 </body>
 </html>
